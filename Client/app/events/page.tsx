@@ -32,7 +32,6 @@ export default function EventsPage() {
       .unwrap()
       .then(() => {
         setPopupVisible(true);
-        // Auto-close popup after 3s and redirect to Profile
         setTimeout(() => {
           setPopupVisible(false);
           router.push("/profile");
@@ -95,20 +94,21 @@ export default function EventsPage() {
               <div className="relative w-full h-48">
                 <Image
                   src={
-                    event.image?.startsWith("/")
+                    event.image && event.image.trim() !== ""
                       ? event.image
-                      : `/images/${event.image}`
+                      : "/images/default-placeholder.png"
                   }
-                  alt={event.title}
+                  alt={event.title || "Event Image"}
                   fill
-                  loading={index === 0 ? "eager" : "lazy"}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-cover"
-                  priority={index === 0}
+                  className="w-full h-[250px] object-cover object-center rounded-t-xl"
+                  unoptimized
                 />
               </div>
               <div className="p-6">
-                <h3 className="text-2xl font-bold mb-2">{event.title}</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  {event.title}
+                </h3>
                 <div className="flex items-center text-gray-500 text-sm gap-2 mb-2">
                   <Calendar className="w-4 h-4" />{" "}
                   {new Date(event.date).toLocaleDateString()}

@@ -6,9 +6,9 @@ const API_URL = "http://localhost:5000/api/bookings";
 // Fetch user bookings
 export const fetchBookings = createAsyncThunk(
   "bookings/fetchBookings",
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = getState().auth?.token || localStorage.getItem("token"); // Fix
       const res = await axios.get(API_URL, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -22,9 +22,9 @@ export const fetchBookings = createAsyncThunk(
 // Cancel a booking
 export const cancelBooking = createAsyncThunk(
   "bookings/cancelBooking",
-  async (bookingId, { rejectWithValue }) => {
+  async (bookingId, { rejectWithValue, getState }) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = getState().auth?.token || localStorage.getItem("token"); // Fix
       await axios.delete(`${API_URL}/${bookingId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -38,9 +38,9 @@ export const cancelBooking = createAsyncThunk(
 // Book an event (RSVP)
 export const bookEvent = createAsyncThunk(
   "bookings/bookEvent",
-  async (eventId, { rejectWithValue }) => {
+  async (eventId, { rejectWithValue, getState }) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = getState().auth?.token || localStorage.getItem("token"); // Fix
       const res = await axios.post(
         API_URL,
         { eventId },

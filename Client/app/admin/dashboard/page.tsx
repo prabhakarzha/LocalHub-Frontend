@@ -11,9 +11,9 @@ import {
   PlusCircle,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
+import axios from "axios"; // Added for API call
 import {
   getEvents,
-  addEvent,
   editEvent,
   removeEvent,
 } from "@/src/redux/slices/eventsSlice";
@@ -24,16 +24,12 @@ import {
   ModalWrapper,
   StatCard,
   EventsTable,
-  EventForm,
 } from "@/ui/uiHelpers";
 
 export default function AdminDashboardPage() {
   const dispatch = useDispatch();
-
-  // Redux state
   const { events, loading } = useSelector((state) => state.events);
 
-  // Local UI state
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
@@ -44,15 +40,13 @@ export default function AdminDashboardPage() {
     date: "",
     location: "",
     price: "",
-    image: "",
+    image: null as File | null, // Changed to store actual file
   });
 
-  // Load events from API using Redux
   useEffect(() => {
     dispatch(getEvents());
   }, [dispatch]);
 
-  // Stats Section
   const stats = [
     {
       title: "Total Events",
@@ -81,13 +75,16 @@ export default function AdminDashboardPage() {
   ];
 
   const handleCreate = () => {
-    setFormData({ title: "", date: "", location: "", price: "", image: "" });
+    setFormData({ title: "", date: "", location: "", price: "", image: null });
     setEditIndex(null);
     setShowModal(true);
   };
 
   const handleEdit = (index: number) => {
-    setFormData(events[index]);
+    setFormData({
+      ...events[index],
+      image: null, // Don't prefill file input
+    });
     setEditIndex(index);
     setShowModal(true);
   };
@@ -104,12 +101,26 @@ export default function AdminDashboardPage() {
     setSaving(true);
 
     try {
+      const data = new FormData();
+      data.append("title", formData.title);
+      data.append("date", formData.date);
+      data.append("location", formData.location);
+      data.append("price", formData.price);
+      if (formData.image) {
+        data.append("image", formData.image); // Append file
+      }
+
       if (editIndex !== null) {
         const id = events[editIndex]._id;
-        await dispatch(editEvent({ id, eventData: formData }));
+        await dispatch(editEvent({ id, eventData: data }));
       } else {
-        await dispatch(addEvent(formData));
+        // Direct axios POST for new event (Cloudinary upload supported)
+        await axios.post("http://localhost:5000/api/events", data, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        dispatch(getEvents());
       }
+
       setShowModal(false);
     } catch (error) {
       console.error("Error saving event:", error);
@@ -120,7 +131,6 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50 to-pink-50 flex flex-col">
-      {/* Navbar */}
       <nav className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white shadow p-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold">Admin Panel</h1>
         <button
@@ -138,14 +148,12 @@ export default function AdminDashboardPage() {
       <main className="flex-1 container mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <GradientHeading text="Admin Dashboard" size="4xl" />
 
-        {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mt-8">
           {stats.map((stat, idx) => (
             <StatCard key={idx} stat={stat} />
           ))}
         </div>
 
-        {/* Manage Events */}
         <div className="mt-12 sm:mt-16 bg-white p-4 sm:p-8 rounded-2xl shadow-lg overflow-x-auto">
           <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
             <GradientHeading text="Manage Events" size="2xl" />
@@ -165,21 +173,56 @@ export default function AdminDashboardPage() {
           />
         </div>
 
-        {/* Modal */}
         {showModal && (
           <ModalWrapper
             onClose={() => setShowModal(false)}
             title={editIndex !== null ? "Edit Event" : "Create New Event"}
           >
-            <EventForm
-              formData={formData}
-              setFormData={setFormData}
-              onSubmit={handleSave}
-              editIndex={editIndex}
-              PrimaryButton={PrimaryButton}
-              InputField={InputField}
-              saving={saving}
-            />
+            <form onSubmit={handleSave} className="space-y-4">
+              <InputField
+                label="Title"
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
+              />
+              <InputField
+                label="Date"
+                type="date"
+                value={formData.date}
+                onChange={(e) =>
+                  setFormData({ ...formData, date: e.target.value })
+                }
+              />
+              <InputField
+                label="Location"
+                value={formData.location}
+                onChange={(e) =>
+                  setFormData({ ...formData, location: e.target.value })
+                }
+              />
+              <InputField
+                label="Price"
+                type="number"
+                value={formData.price}
+                onChange={(e) =>
+                  setFormData({ ...formData, price: e.target.value })
+                }
+              />
+              <input
+                type="file"
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    image: e.target.files?.[0] || null,
+                  })
+                }
+                className="block w-full text-gray-700"
+              />
+              <PrimaryButton type="submit" disabled={saving}>
+                {saving ? "Saving..." : "Save Event"}
+              </PrimaryButton>
+            </form>
           </ModalWrapper>
         )}
       </main>
