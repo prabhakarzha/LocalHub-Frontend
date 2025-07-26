@@ -41,6 +41,9 @@ app.use(
 app.use(express.json());
 
 // API Routes
+app.get("/", (req, res) => {
+  res.send("LocalHub Backend is running 🚀");
+});
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/bookings", bookingRoutes);
