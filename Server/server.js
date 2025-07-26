@@ -18,19 +18,37 @@ connectDB();
 
 const app = express();
 
-// Allow CORS (frontend 3000 ko backend 5000 pe access)
+// Allow both localhost (dev) and Vercel (prod)
+const allowedOrigins = [
+  "http://localhost:3000", // Local Dev
+  "https://local-hub-frontend.vercel.app/", // Replace with actual deployed Vercel link
+];
+
 app.use(
   cors({
-    origin: "http://localhost:3000", // ya "*" for all origins (dev only)
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like Postman)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
+
 app.use(express.json());
 
-// Routes
+// API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/bookings", bookingRoutes);
+
+// Health Check Route (optional, to confirm it's working on Render)
+app.get("/", (req, res) => {
+  res.send("LocalHub Backend is running 🚀");
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
