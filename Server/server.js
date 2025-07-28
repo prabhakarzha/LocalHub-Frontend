@@ -18,21 +18,24 @@ connectDB();
 
 const app = express();
 
-// Allow both localhost (dev) and Vercel (prod)
+// Allow localhost, production frontend, and handle no-origin (mobile app/testing)
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://local-hub-frontend.vercel.app", // no trailing slash
+  "https://local-hub-frontend.vercel.app",
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
       if (!origin || allowedOrigins.includes(origin)) {
+        // Allow requests with no origin (like Postman, mobile fetch)
         callback(null, true);
       } else {
+        console.log(`CORS blocked request from: ${origin}`);
         callback(new Error("Not allowed by CORS"));
       }
     },
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
