@@ -18,27 +18,30 @@ connectDB();
 
 const app = express();
 
-// Allow localhost, production frontend, and handle no-origin (mobile app/testing)
+// Allow localhost (dev) and Vercel (prod)
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://local-hub-frontend.vercel.app",
+  "https://local-hub-frontend.vercel.app"
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        // Allow requests with no origin (like Postman, mobile fetch)
+      if (!origin || allowedOrigins.some((o) => origin.startsWith(o))) {
         callback(null, true);
       } else {
-        console.log(`CORS blocked request from: ${origin}`);
+        console.error("Blocked by CORS:", origin);
         callback(new Error("Not allowed by CORS"));
       }
     },
-    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allow all methods
+    allowedHeaders: ["Content-Type", "Authorization"],    // Required for login/signup
   })
 );
+
+// Handle preflight requests explicitly (for mobile)
+app.options("*", cors());
 
 app.use(express.json());
 
