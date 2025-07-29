@@ -22,11 +22,7 @@ const app = express();
 // Allow localhost (dev) and Vercel (prod)
 const allowedOrigins = [
   "http://localhost:3000",
-<<<<<<< HEAD
   "https://local-hub.vercel.app",
-=======
-  "https://local-hub.vercel.app"
->>>>>>> 17d8642fe5ec40b98d26c13299dc0b67138cb9f6
 ];
 
 app.use(
