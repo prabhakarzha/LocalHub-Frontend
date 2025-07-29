@@ -37,11 +37,7 @@ app.use(
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allow all methods
-<<<<<<< HEAD
     allowedHeaders: ["Content-Type", "Authorization"], // Required for login/signup
-=======
-    allowedHeaders: ["Content-Type", "Authorization"],    // Required for login/signup
->>>>>>> 17d8642fe5ec40b98d26c13299dc0b67138cb9f6
   })
 );
 
