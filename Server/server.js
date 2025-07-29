@@ -22,7 +22,11 @@ const app = express();
 // Allow localhost (dev) and Vercel (prod)
 const allowedOrigins = [
   "http://localhost:3000",
+<<<<<<< HEAD
   "https://local-hub.vercel.app",
+=======
+  "https://local-hub.vercel.app"
+>>>>>>> 17d8642fe5ec40b98d26c13299dc0b67138cb9f6
 ];
 
 app.use(
@@ -37,7 +41,11 @@ app.use(
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allow all methods
+<<<<<<< HEAD
     allowedHeaders: ["Content-Type", "Authorization"], // Required for login/signup
+=======
+    allowedHeaders: ["Content-Type", "Authorization"],    // Required for login/signup
+>>>>>>> 17d8642fe5ec40b98d26c13299dc0b67138cb9f6
   })
 );
 
