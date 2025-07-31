@@ -1,4 +1,3 @@
-// controllers/serviceController.js
 import ServiceBooking from "../models/serviceBooking.js";
 
 // Create a new service booking
@@ -24,7 +23,18 @@ export const getUserServiceBookings = async (req, res) => {
   try {
     const bookings = await ServiceBooking.find({
       userId: req.user.id,
-    }).populate("serviceId");
+    }).populate({
+      path: "serviceId",
+      populate: {
+        path: "user",
+        model: "User",
+      },
+    });
+    console.log(
+      "Bookings with populated service and user:",
+      JSON.stringify(bookings, null, 2)
+    );
+
     res.json({ success: true, bookings });
   } catch (err) {
     res
