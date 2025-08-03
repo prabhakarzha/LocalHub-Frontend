@@ -1,5 +1,5 @@
 # Ignore the Client folder
-Client/
+Server/
 
 # Ignore .env files# .gitignore
 # .env files
@@ -50,5 +50,4 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-"Client/" 
-"Client/" 
+
