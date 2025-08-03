@@ -17,7 +17,6 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   // Debug: log state changes
   useEffect(() => {
     console.log("Auth state changed:", { loading, error, user, token });
@@ -34,9 +33,9 @@ export default function LoginPage() {
     }
   }, [loading, dispatch]);
 
-  // Redirect based on user role after login
+  // Redirect based on user role after login (only when loading is false)
   useEffect(() => {
-    if (token && user?.role) {
+    if (!loading && token && user?.role) {
       console.log("Redirecting user with role:", user.role);
       if (user.role === "admin") {
         router.push("/admin/dashboard");
@@ -44,7 +43,7 @@ export default function LoginPage() {
         router.push("/profile");
       }
     }
-  }, [token, user?.role, router]);
+  }, [loading, token, user?.role, router]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
