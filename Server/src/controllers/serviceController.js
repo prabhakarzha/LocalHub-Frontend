@@ -9,12 +9,12 @@ export const createService = async (req, res) => {
   try {
     const { title, category, description, contact, price } = req.body;
 
-    // Ensure category is valid (avoid enum error)
+    // Validate category value
     const validCategory = ["Tutor", "Repair", "Business"].includes(category)
       ? category
       : "Tutor";
 
-    // Validate required fields
+    // Required field validation
     if (!title || !description || !contact) {
       console.error("[ERROR] Missing required fields:", {
         title,

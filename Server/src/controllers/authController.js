@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import { generateToken } from "../utils/generateToken.js";
+import { hashPassword, comparePassword } from "../utils/hash.js"; // import hashing utilities
 
 // Register
 export const registerUser = async (req, res) => {
@@ -11,7 +12,9 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    const user = await User.create({ name, email, password });
+    const hashedPassword = await hashPassword(password); // hash password
+
+    const user = await User.create({ name, email, password: hashedPassword }); // store hashed password
     res.status(201).json({
       _id: user._id,
       name: user.name,
@@ -24,19 +27,27 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// Login
+//login
+
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
     const user = await User.findOne({ email });
-    if (user && (await user.matchPassword(password))) {
-      res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
+
+    const isMatch = user && (await comparePassword(password, user.password)); // compare with hashed password
+
+    if (isMatch) {
+      res.status(200).json({
         token: generateToken(user._id),
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.isAdmin ? "admin" : "user",
+          token: generateToken(user._id),
+          // ✅ this line must be exact
+        },
       });
     } else {
       res.status(401).json({ message: "Invalid email or password" });

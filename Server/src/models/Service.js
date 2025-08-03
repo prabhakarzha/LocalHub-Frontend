@@ -11,8 +11,7 @@ const serviceSchema = new mongoose.Schema(
     description: { type: String, required: true },
     contact: { type: String, required: true },
     price: { type: String, default: "Free" },
-    image: { type: String, default: "" },
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // ✅ Add this
+    image: { type: String },
   },
   { timestamps: true }
 );
