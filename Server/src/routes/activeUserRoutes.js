@@ -1,8 +1,8 @@
 import express from "express";
-import { getActiveUsers } from "../controllers/activeUserController.js";
+import { getUserCount } from "../controllers/userController.js"; // or wherever you defined it
 
 const router = express.Router();
 
-router.get("/active-users", getActiveUsers);
+router.get("/count", getUserCount);
 
 export default router;

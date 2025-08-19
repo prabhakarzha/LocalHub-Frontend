@@ -1,10 +1,10 @@
-import User from "../models/User.js";
+import User from "../models/User.js"; // Mongoose User model
 
-export const getActiveUsers = async (req, res) => {
+export const getUserCount = async (req, res) => {
   try {
-    const count = await User.countDocuments({ isActive: true });
-    res.status(200).json({ count });
+    const totalUsers = await User.countDocuments();
+    res.status(200).json({ totalUsers });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
