@@ -109,3 +109,11 @@ export const deleteService = async (req, res) => {
     res.status(500).json({ message: "Failed to delete service" });
   }
 };
+export const getServiceCount = async (req, res) => {
+  try {
+    const totalServices = await Service.countDocuments();
+    res.status(200).json({ totalServices });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};

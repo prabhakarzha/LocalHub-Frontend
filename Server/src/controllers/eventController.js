@@ -77,3 +77,12 @@ export const deleteEvent = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+export const getEventCount = async (req, res) => {
+  try {
+    const totalEvents = await Event.countDocuments();
+    res.status(200).json({ totalEvents });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};

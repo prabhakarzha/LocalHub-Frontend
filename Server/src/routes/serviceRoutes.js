@@ -4,6 +4,7 @@ import {
   getServices,
   updateService,
   deleteService,
+  getServiceCount,
 } from "../controllers/serviceController.js";
 import { upload } from "../middleware/upload.js";
 
@@ -24,5 +25,6 @@ router.post(
 router.get("/", getServices);
 router.put("/:id", updateService);
 router.delete("/:id", deleteService);
+router.delete("/service-count", getServiceCount);
 
 export default router;
