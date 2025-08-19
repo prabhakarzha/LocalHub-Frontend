@@ -19,9 +19,9 @@ export const registerUser = async (req, res) => {
       email,
       password: hashedPassword,
       role,
+      isActive: true, // ✅ add default active flag
     });
 
-    // ✅ Pass the full user object to generateToken
     const token = generateToken(newUser);
 
     res.status(201).json({
@@ -38,6 +38,7 @@ export const registerUser = async (req, res) => {
   }
 };
 
+// Login
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -54,7 +55,10 @@ export const loginUser = async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    // ✅ Now token will contain the correct role
+    // ✅ mark user active on login
+    user.isActive = true;
+    await user.save();
+
     const token = generateToken(user);
 
     res.status(200).json({
@@ -63,7 +67,7 @@ export const loginUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role, // ✅ Include role in response too
+        role: user.role,
       },
     });
   } catch (error) {
@@ -90,3 +94,5 @@ export const getUserProfile = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
