@@ -37,10 +37,16 @@ export default function LoginPage() {
   // Redirect after login
   useEffect(() => {
     if (!loading && token && user?.role) {
-      if (user.role === "admin") {
-        router.push("/admin/dashboard");
+      const redirectPath = localStorage.getItem("redirectAfterLogin");
+      if (redirectPath) {
+        console.log("Redirecting after login to:", redirectPath);
+        localStorage.removeItem("redirectAfterLogin");
+        router.push(redirectPath);
       } else {
-        router.push("/profile");
+        const defaultRoute =
+          user.role === "admin" ? "/admin/dashboard" : "/profile";
+        console.log("Redirecting to default route:", defaultRoute);
+        router.push(defaultRoute);
       }
     }
   }, [loading, token, user?.role, router]);
@@ -57,14 +63,13 @@ export default function LoginPage() {
     <div className="min-h-screen relative flex items-center justify-center px-4 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-3/4 left-1/2 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-3/4 left-1/2 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
 
       {/* Login Card */}
       <div className="relative z-10 w-full max-w-md bg-white/10 backdrop-blur-xl shadow-2xl rounded-2xl p-8 border border-white/20">
-        {/* Header */}
         <h2 className="text-3xl font-extrabold text-center text-white">
           Welcome Back
         </h2>
@@ -72,14 +77,12 @@ export default function LoginPage() {
           Please sign in to continue
         </p>
 
-        {/* Error Message */}
         {error && (
           <div className="mt-4 p-3 bg-red-500/20 border border-red-500 text-red-300 rounded-lg text-center">
             {error}
           </div>
         )}
 
-        {/* Form */}
         <form className="mt-6 space-y-5" onSubmit={handleLogin}>
           <div>
             <label className="block text-gray-200 font-medium mb-1">
@@ -117,19 +120,16 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Divider */}
         <div className="flex items-center my-6">
           <hr className="flex-grow border-gray-500/40" />
           <span className="px-3 text-gray-300">or</span>
           <hr className="flex-grow border-gray-500/40" />
         </div>
 
-        {/* Google Login */}
         <button className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-red-500/90 text-white hover:bg-red-600 transition">
           <span className="text-lg">🔑</span> Sign in with Google
         </button>
 
-        {/* Footer */}
         <p className="mt-6 text-center text-gray-300">
           Don’t have an account?{" "}
           <Link

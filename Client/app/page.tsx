@@ -11,7 +11,6 @@ import {
   ArrowRight,
   X,
   LogIn,
-  Sparkles,
   MapPin,
 } from "lucide-react";
 import { fetchEventCount } from "@/src/redux/slices/eventsSlice";
@@ -24,21 +23,21 @@ const features = [
     desc: "Find local classes, garage sales, and community meetups in your area.",
     color: "from-blue-400 to-blue-600",
     icon: Calendar,
-    stats: "1000+ Events",
+    route: "/discovereventpage", // updated to match your Discover Events page
   },
   {
     title: "Neighborhood Services",
     desc: "Connect with tutors, repair experts, and other local businesses.",
     color: "from-purple-400 to-purple-600",
     icon: Users,
-    stats: "500+ Services",
+    route: "/services",
   },
   {
     title: "Build Community",
     desc: "RSVP, comment, and collaborate with your neighbors easily.",
     color: "from-pink-400 to-pink-600",
     icon: Star,
-    stats: "10k+ Members",
+    route: "/community",
   },
 ];
 
@@ -49,27 +48,25 @@ export default function HomePage() {
 
   const totalUsers = useAppSelector((state) => state.users.totalUsers || 0);
   const loadingUsers = useAppSelector((state) => state.users.loading);
-
   const eventCount = useAppSelector((state) => state.events.eventCount || 0);
   const serviceCount = useAppSelector(
     (state) => state.services.serviceCount || 0
   );
-
   const totalCount = eventCount + serviceCount;
+
   useEffect(() => {
     dispatch(fetchUserCount());
-  }, [dispatch]);
-
-  useEffect(() => {
     dispatch(fetchEventCount());
     dispatch(fetchServiceCount());
   }, [dispatch]);
 
-  const handleExploreClick = (e: React.MouseEvent) => {
+  const handleExploreClick = (e: React.MouseEvent, route: string) => {
     if (!token) {
       e.preventDefault();
+      localStorage.setItem("redirectAfterLogin", route);
       setShowPopup(true);
     }
+    // If token exists, navigation works normally
   };
 
   return (
@@ -81,10 +78,7 @@ export default function HomePage() {
         <div className="absolute top-3/4 left-1/2 transform -translate-x-1/2 w-48 sm:w-64 h-48 sm:h-64 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
         <div className="absolute top-10 right-4 sm:right-10 w-24 sm:w-32 h-24 sm:h-32 bg-yellow-500/10 rounded-full blur-2xl"></div>
         <div className="absolute bottom-10 left-4 sm:left-10 w-32 sm:w-40 h-32 sm:h-40 bg-green-500/10 rounded-2xl blur-2xl"></div>
-      </div>
 
-      {/* Floating Particles */}
-      <div className="absolute inset-0 overflow-hidden">
         {[...Array(20)].map((_, i) => (
           <div
             key={i}
@@ -108,20 +102,6 @@ export default function HomePage() {
             transition={{ duration: 0.8 }}
             className="max-w-5xl mx-auto"
           >
-            {/* Welcome Badge */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-white/10 backdrop-blur-lg border border-white/20 rounded-full text-white/90 mb-6 sm:mb-8"
-            >
-              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
-              <span className="text-xs sm:text-sm font-medium">
-                Welcome to the Future of Community
-              </span>
-            </motion.div>
-
-            {/* Main Title */}
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -136,7 +116,6 @@ export default function HomePage() {
               </span>
             </motion.h1>
 
-            {/* Subtitle */}
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -147,7 +126,6 @@ export default function HomePage() {
               your neighborhood community like never before.
             </motion.p>
 
-            {/* Location Info */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -158,7 +136,6 @@ export default function HomePage() {
               <span>Connecting communities worldwide</span>
             </motion.div>
 
-            {/* CTA Buttons */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -166,15 +143,14 @@ export default function HomePage() {
               className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-center justify-center w-full px-4"
             >
               <Link
-                href="/events"
-                onClick={handleExploreClick}
+                href={features[0].route}
+                onClick={(e) => handleExploreClick(e, features[0].route)}
                 prefetch={false}
                 className="group relative w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white rounded-xl sm:rounded-2xl font-semibold shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 hover:scale-105 flex items-center justify-center gap-3 text-sm sm:text-base"
               >
                 <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span>Explore Events</span>
                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-xl sm:rounded-2xl blur opacity-30 group-hover:opacity-50 transition-opacity -z-10"></div>
               </Link>
 
               <Link
@@ -187,7 +163,7 @@ export default function HomePage() {
               </Link>
             </motion.div>
 
-            {/* Stats */}
+            {/* Stats Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -250,35 +226,37 @@ export default function HomePage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.2, duration: 0.8 }}
                   viewport={{ once: true }}
-                  className="group relative"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/10 rounded-2xl sm:rounded-3xl blur-xl"></div>
-                  <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-center hover:bg-white/10 hover:border-purple-500/30 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/10">
-                    <div className="relative mb-4 sm:mb-6">
-                      <div
-                        className={`w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br ${feature.color} rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300`}
-                      >
-                        <IconComponent className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                  <Link
+                    href={feature.route}
+                    onClick={(e) => handleExploreClick(e, feature.route)}
+                    className="group relative block"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/10 rounded-2xl sm:rounded-3xl blur-xl"></div>
+                    <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-8 text-center hover:bg-white/10 hover:border-purple-500/30 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/10">
+                      <div className="relative mb-4 sm:mb-6">
+                        <div
+                          className={`w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br ${feature.color} rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300`}
+                        >
+                          <IconComponent className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                        </div>
                       </div>
-                      <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 px-2 sm:px-3 py-1 bg-yellow-500/20 border border-yellow-500/30 rounded-full text-yellow-300 text-xs font-medium">
-                        {feature.stats}
-                      </div>
+                      <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4 group-hover:text-purple-300 transition-colors">
+                        {feature.title}
+                      </h3>
+                      <p className="text-sm sm:text-base text-gray-300 leading-relaxed group-hover:text-gray-200 transition-colors">
+                        {feature.desc}
+                      </p>
+                      <div className="absolute inset-0 rounded-2xl sm:rounded-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 bg-gradient-to-br from-purple-500 via-pink-500 to-blue-500"></div>
                     </div>
-                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4 group-hover:text-purple-300 transition-colors">
-                      {feature.title}
-                    </h3>
-                    <p className="text-sm sm:text-base text-gray-300 leading-relaxed group-hover:text-gray-200 transition-colors">
-                      {feature.desc}
-                    </p>
-                    <div className="absolute inset-0 rounded-2xl sm:rounded-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 bg-gradient-to-br from-purple-500 via-pink-500 to-blue-500"></div>
-                  </div>
+                  </Link>
                 </motion.div>
               );
             })}
           </div>
         </section>
 
-        {/* Popup */}
+        {/* Login Popup */}
         {showPopup && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -313,7 +291,9 @@ export default function HomePage() {
 
               <div className="flex flex-col gap-3 sm:gap-4">
                 <button
-                  onClick={() => (window.location.href = "/login")}
+                  onClick={() => {
+                    window.location.href = "/login";
+                  }}
                   className="w-full px-4 sm:px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-medium hover:from-purple-500 hover:to-pink-500 transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2 text-sm sm:text-base"
                 >
                   <LogIn className="w-4 h-4 sm:w-5 sm:h-5" />
