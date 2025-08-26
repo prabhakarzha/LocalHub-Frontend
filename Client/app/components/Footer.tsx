@@ -25,7 +25,7 @@ export default function Footer() {
 
             {/* Developer Credit */}
             <div className="flex items-center gap-2 text-gray-400 text-sm group">
-              <span>Designed and developed with</span>
+              <span>Designed and developed</span>
               <span>by</span>
               <span className="font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent group-hover:from-purple-300 group-hover:to-pink-300 transition-all duration-300">
                 Prabhakar kumar
