@@ -23,7 +23,7 @@ const features = [
     desc: "Find local classes, garage sales, and community meetups in your area.",
     color: "from-blue-400 to-blue-600",
     icon: Calendar,
-    route: "/discovereventpage", // updated to match your Discover Events page
+    route: "/discovereventpage",
   },
   {
     title: "Neighborhood Services",
@@ -66,11 +66,10 @@ export default function HomePage() {
       localStorage.setItem("redirectAfterLogin", route);
       setShowPopup(true);
     }
-    // If token exists, navigation works normally
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
@@ -79,6 +78,7 @@ export default function HomePage() {
         <div className="absolute top-10 right-4 sm:right-10 w-24 sm:w-32 h-24 sm:h-32 bg-yellow-500/10 rounded-full blur-2xl"></div>
         <div className="absolute bottom-10 left-4 sm:left-10 w-32 sm:w-40 h-32 sm:h-40 bg-green-500/10 rounded-2xl blur-2xl"></div>
 
+        {/* floating dots */}
         {[...Array(20)].map((_, i) => (
           <div
             key={i}
@@ -136,6 +136,7 @@ export default function HomePage() {
               <span>Connecting communities worldwide</span>
             </motion.div>
 
+            {/* CTA buttons */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

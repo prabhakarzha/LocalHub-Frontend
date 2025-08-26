@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PhoneCall, DollarSign, CheckCircle } from "lucide-react";
+import { PhoneCall, DollarSign } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/src/redux/hooks";
@@ -67,7 +67,7 @@ export default function ServicesPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] py-16">
+    <div className="relative min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] py-16 pt-24">
       {/* Overlay blur effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/40 via-pink-900/30 to-blue-900/40 backdrop-blur-3xl"></div>
 
@@ -84,12 +84,10 @@ export default function ServicesPage() {
         {popupVisible && (
           <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50">
             <div className="relative backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-8 max-w-md w-full space-y-5 animate-fade-in">
-              {/* Gradient Heading */}
               <h2 className="text-2xl font-bold text-center bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 text-transparent bg-clip-text drop-shadow-md">
                 Book This Service
               </h2>
 
-              {/* Input - Contact Number */}
               <input
                 type="text"
                 placeholder="Your Contact Number"
@@ -98,7 +96,6 @@ export default function ServicesPage() {
                 className="w-full bg-white/10 border border-white/20 px-4 py-2 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
               />
 
-              {/* Input - Message */}
               <textarea
                 placeholder="Your Message"
                 value={userMessage}
@@ -106,7 +103,6 @@ export default function ServicesPage() {
                 className="w-full bg-white/10 border border-white/20 px-4 py-2 rounded-lg h-24 resize-none text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
               />
 
-              {/* Buttons */}
               <div className="flex justify-end gap-3 pt-2">
                 <button
                   onClick={() => setPopupVisible(false)}
@@ -135,10 +131,10 @@ export default function ServicesPage() {
             services.map((service: any) => (
               <div
                 key={service._id}
-                className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl hover:scale-[1.02] transition transform duration-300"
+                className="flex flex-col backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl hover:scale-[1.02] transition transform duration-300 min-h-[420px]"
               >
                 {/* Service Image */}
-                <div className="relative w-full h-56">
+                <div className="relative w-full h-48">
                   <Image
                     src={
                       service.image && service.image.trim() !== ""
@@ -153,22 +149,26 @@ export default function ServicesPage() {
                 </div>
 
                 {/* Service Content */}
-                <div className="p-6 text-white">
-                  <h3 className="text-2xl font-bold mb-2">{service.title}</h3>
-                  <p className="text-gray-300 mb-4">{service.description}</p>
+                <div className="flex flex-col flex-1 p-6 text-white">
+                  <h3 className="text-xl font-bold mb-2">{service.title}</h3>
+                  <p className="text-gray-300 text-sm flex-grow">
+                    {service.description}
+                  </p>
 
-                  <div className="flex items-center text-sm gap-2 mb-2 text-gray-300">
-                    <PhoneCall className="w-4 h-4 text-green-300" />{" "}
-                    {service.contact}
-                  </div>
-                  <div className="flex items-center text-sm gap-2 mb-4 text-gray-300">
-                    <DollarSign className="w-4 h-4 text-yellow-300" />{" "}
-                    {service.price}
+                  <div className="mt-3">
+                    <div className="flex items-center text-sm gap-2 mb-2 text-gray-300">
+                      <PhoneCall className="w-4 h-4 text-green-300" />{" "}
+                      {service.contact}
+                    </div>
+                    <div className="flex items-center text-sm gap-2 text-gray-300">
+                      <DollarSign className="w-4 h-4 text-yellow-300" />{" "}
+                      {service.price}
+                    </div>
                   </div>
 
                   <button
                     onClick={() => openBookingPopup(service._id)}
-                    className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white py-2 rounded-lg hover:scale-105 transition shadow-md"
+                    className="mt-auto w-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white py-2 rounded-lg hover:scale-105 transition shadow-md"
                   >
                     Book Service
                   </button>

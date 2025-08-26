@@ -60,12 +60,26 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center px-4 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div
+      className="relative flex items-center justify-center min-h-screen 
+  w-screen max-w-[100vw] px-4 overflow-x-hidden 
+  bg-gradient-to-br from-purple-700 via-purple-800 to-purple-900
+  pt-24"
+    >
       {/* Background Effects */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-3/4 left-1/2 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 
+          rounded-full blur-3xl animate-pulse -translate-x-1/2 -translate-y-1/2"
+        ></div>
+        <div
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/20 
+          rounded-full blur-3xl animate-pulse delay-1000 translate-x-1/2 translate-y-1/2"
+        ></div>
+        <div
+          className="absolute top-3/4 left-1/2 w-64 h-64 bg-blue-500/20 
+          rounded-full blur-3xl animate-pulse delay-500 -translate-x-1/2"
+        ></div>
       </div>
 
       {/* Login Card */}

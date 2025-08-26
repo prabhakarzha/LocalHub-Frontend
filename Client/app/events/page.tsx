@@ -68,7 +68,7 @@ export default function EventsPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] py-16">
+    <div className="relative min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] py-16 pt-24">
       {/* Overlay blur effect for glassmorphism look */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/40 via-pink-900/30 to-blue-900/40 backdrop-blur-3xl"></div>
 
