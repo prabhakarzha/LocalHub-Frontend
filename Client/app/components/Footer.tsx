@@ -1,4 +1,4 @@
-import { Heart, Code, MapPin } from "lucide-react";
+import { Heart, Code } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -11,44 +11,25 @@ export default function Footer() {
       </div>
 
       <div className="relative z-10 bg-white/5 backdrop-blur-xl border-t border-white/10">
-        <div className="container mx-auto px-6 py-8">
+        <div className="container mx-auto px-6 py-10">
           {/* Main Footer Content */}
-          <div className="text-center mb-6">
-            {/* Brand Section */}
-            <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent mb-3">
-              LocalHub
-            </h3>
-            <p className="text-gray-300 mb-4 leading-relaxed max-w-2xl mx-auto">
-              Connecting communities through events and services. Your local hub
-              for everything that matters.
-            </p>
-            {/* <div className="flex items-center justify-center gap-2 text-gray-400">
-              <MapPin className="w-4 h-4 text-purple-400" />
-              <span className="text-sm">Serving communities worldwide</span>
-            </div> */}
-          </div>
 
           {/* Divider */}
-          <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-6"></div>
 
           {/* Bottom Section */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col items-center justify-center gap-3 text-center">
             {/* Copyright */}
-            <div className="text-center md:text-left">
-              <p className="text-gray-400 text-sm">
-                © {new Date().getFullYear()} LocalHub. All rights reserved.
-              </p>
-            </div>
+            <p className="text-gray-400 text-sm">
+              © {new Date().getFullYear()} LocalHub. All rights reserved.
+            </p>
 
             {/* Developer Credit */}
             <div className="flex items-center gap-2 text-gray-400 text-sm group">
               <span>Designed and developed with</span>
-              <Heart className="w-4 h-4 text-red-400 group-hover:text-red-300 transition-colors animate-pulse" />
               <span>by</span>
               <span className="font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent group-hover:from-purple-300 group-hover:to-pink-300 transition-all duration-300">
-                Prabhakar
+                Prabhakar kumar
               </span>
-              <Code className="w-4 h-4 text-blue-400 group-hover:text-blue-300 transition-colors" />
             </div>
           </div>
         </div>
