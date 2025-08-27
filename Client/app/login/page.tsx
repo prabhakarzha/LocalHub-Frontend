@@ -63,28 +63,18 @@ export default function LoginPage() {
     <div
       className="relative flex items-center justify-center min-h-screen 
   w-screen max-w-[100vw] px-4 overflow-x-hidden 
-  bg-gradient-to-br from-purple-700 via-purple-800 to-purple-900
-  pt-24"
+  bg-gradient-to-br from-slate-1200 via-purple-1200 to-slate-1200 pt-24"
     >
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 
-          rounded-full blur-3xl animate-pulse -translate-x-1/2 -translate-y-1/2"
-        ></div>
-        <div
-          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/20 
-          rounded-full blur-3xl animate-pulse delay-1000 translate-x-1/2 translate-y-1/2"
-        ></div>
-        <div
-          className="absolute top-3/4 left-1/2 w-64 h-64 bg-blue-500/20 
-          rounded-full blur-3xl animate-pulse delay-500 -translate-x-1/2"
-        ></div>
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl animate-pulse delay-1000 translate-x-1/2 translate-y-1/2"></div>
+        <div className="absolute top-3/4 left-1/2 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-500 -translate-x-1/2"></div>
       </div>
 
       {/* Login Card */}
-      <div className="relative z-10 w-full max-w-md bg-white/10 backdrop-blur-xl shadow-2xl rounded-2xl p-8 border border-white/20">
-        <h2 className="text-3xl font-extrabold text-center text-white">
+      <div className="relative z-10 w-full max-w-md bg-white/10 backdrop-blur-2xl shadow-2xl rounded-2xl p-8 border border-white/20">
+        <h2 className="text-3xl font-extrabold text-center bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 bg-clip-text text-transparent drop-shadow-lg">
           Welcome Back
         </h2>
         <p className="text-center text-gray-300 mt-2">
@@ -107,7 +97,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              className="w-full px-4 py-2 border border-gray-500/40 bg-white/20 text-white placeholder-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-4 py-2 border border-white/30 bg-white/10 text-white placeholder-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               required
             />
           </div>
@@ -120,7 +110,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
-              className="w-full px-4 py-2 border border-gray-500/40 bg-white/20 text-white placeholder-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-4 py-2 border border-white/30 bg-white/10 text-white placeholder-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               required
             />
           </div>
@@ -128,7 +118,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:scale-105 transition disabled:opacity-60"
+            className="w-full py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 hover:scale-105 transition disabled:opacity-60"
           >
             {loading ? "Logging in..." : "Login"}
           </button>

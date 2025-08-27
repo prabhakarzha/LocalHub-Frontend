@@ -122,8 +122,7 @@ export default function HomePage() {
               transition={{ delay: 0.6, duration: 0.8 }}
               className="text-xl md:text-2xl text-gray-300 max-w-3xl mb-4 leading-relaxed"
             >
-              Discover amazing events, find trusted services, and connect with
-              your neighborhood community like never before.
+              Events. Services. Community. All in one place.
             </motion.p>
 
             <motion.div

@@ -82,8 +82,8 @@ export default function DiscoverEventsPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white p-8">
-      <GradientHeading text="Discover Events" size="4xl" />
+    <div className="min-h-screen bg-slate-1200 text-white p-24">
+      {/* <GradientHeading text="Discover Events" size="4xl" /> */}
 
       {loading && (
         <div className="mt-8 text-center">

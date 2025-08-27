@@ -17,13 +17,12 @@ export default function Navbar() {
 
   const { token, user } = useSelector((state: any) => state.auth);
 
+  // ✅ Profile tab only jab login hoga
   const navItems = [
     { href: "/", label: "Home", protected: false },
     { href: "/events", label: "Events", protected: true },
     { href: "/services", label: "Services", protected: true },
-    ...(user?.role === "admin"
-      ? []
-      : [{ href: "/profile", label: "Profile", protected: true }]),
+    ...(token ? [{ href: "/profile", label: "Profile", protected: true }] : []),
   ];
 
   if (user?.role === "admin") {
@@ -60,13 +59,21 @@ export default function Navbar() {
   return (
     <>
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 w-full bg-gradient-to-r from-blue-700 via-purple-700 to-pink-700 backdrop-blur-md bg-opacity-95 text-white shadow-lg z-50">
-        <div className="container mx-auto flex justify-between items-center px-6 py-4">
+
+      <nav className="fixed top-0 left-0 w-full bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 backdrop-blur-md bg-opacity-95 text-white shadow-xl z-50 overflow-hidden">
+        {/* Background Effects */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/2 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-0 right-1/4 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-1/2 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
+        </div>
+
+        <div className="relative z-10 container mx-auto flex justify-between items-center px-6 py-4">
           {/* Brand */}
           <Link
             href="/"
             prefetch={false}
-            className="text-2xl font-extrabold tracking-wide hover:opacity-90 transition"
+            className="text-2xl font-extrabold tracking-wide hover:opacity-90 transition bg-gradient-to-r from-purple-300 via-pink-300 to-blue-300 bg-clip-text text-transparent"
           >
             LocalHub
           </Link>
@@ -78,7 +85,9 @@ export default function Navbar() {
                 key={item.href}
                 onClick={() => handleNavClick(item.href, item.protected)}
                 className={`transition hover:opacity-80 ${
-                  pathname === item.href ? "font-bold underline" : ""
+                  pathname === item.href
+                    ? "font-bold underline text-purple-300"
+                    : "text-gray-200"
                 }`}
               >
                 {item.label}
@@ -117,7 +126,7 @@ export default function Navbar() {
 
           {/* Mobile Toggle */}
           <button
-            className="md:hidden text-white text-2xl"
+            className="md:hidden text-white text-2xl relative z-10"
             onClick={() => setIsMenuOpen((prev) => !prev)}
           >
             {isMenuOpen ? "✕" : "☰"}
@@ -126,13 +135,15 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden bg-gradient-to-r from-blue-700 via-purple-700 to-pink-700 text-white px-6 py-4 space-y-4 shadow-md">
+          <div className="relative z-10 md:hidden bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 text-white px-6 py-4 space-y-4 shadow-md">
             {navItems.map((item) => (
               <button
                 key={item.href}
                 onClick={() => handleNavClick(item.href, item.protected)}
                 className={`block w-full text-left transition hover:opacity-80 ${
-                  pathname === item.href ? "font-bold underline" : ""
+                  pathname === item.href
+                    ? "font-bold underline text-purple-300"
+                    : "text-gray-200"
                 }`}
               >
                 {item.label}

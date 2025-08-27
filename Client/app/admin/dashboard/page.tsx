@@ -233,14 +233,7 @@ function AdminDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden relative">
-      {/* Subtle animated background blobs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-pink-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-3/4 left-1/2 transform -translate-x-1/2 w-48 sm:w-64 h-48 sm:h-64 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-slate-1200 via-purple-1200 to-slate-1200 overflow-hidden relative">
       {/* Floating particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(15)].map((_, i) => (
@@ -299,7 +292,7 @@ function AdminDashboardPage() {
 
         {/* Events Tab */}
         {activeTab === "events" && (
-          <div className="mt-8 bg-white/10 p-4 sm:p-8 rounded-2xl shadow-lg backdrop-blur-md overflow-x-auto">
+          <div className="mt-8 bg-black/10 p-4 sm:p-8 rounded-2xl shadow-lg backdrop-blur-md overflow-x-auto">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
               <GradientHeading text="Events" size="2xl" />
               <PrimaryButton onClick={handleCreate} disabled={false}>
@@ -308,7 +301,7 @@ function AdminDashboardPage() {
                 Event{" "}
               </PrimaryButton>
             </div>
-            <div className="bg-white/20 rounded-xl shadow-inner overflow-hidden">
+            <div className="bg-black/70 rounded-xl shadow-inner overflow-hidden">
               <EventsTable
                 events={events}
                 loading={loading}
@@ -321,7 +314,7 @@ function AdminDashboardPage() {
 
         {/* Services Tab */}
         {activeTab === "services" && (
-          <div className="mt-8 bg-white/10 p-4 sm:p-8 rounded-2xl shadow-lg backdrop-blur-md overflow-x-auto">
+          <div className="mt-8 bg-black/10 p-4 sm:p-8 rounded-2xl shadow-lg backdrop-blur-md overflow-x-auto">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
               <GradientHeading text="Services" size="2xl" />
               <PrimaryButton onClick={handleAddService} disabled={false}>
@@ -329,7 +322,7 @@ function AdminDashboardPage() {
                 <PlusCircle className="w-5 h-5 mr-2 inline-block" /> Add Service{" "}
               </PrimaryButton>
             </div>
-            <div className="bg-white/20 rounded-xl shadow-inner overflow-hidden">
+            <div className="bg-black/70 rounded-xl shadow-inner overflow-hidden">
               <ServicesTable
                 services={services}
                 loading={serviceLoading}

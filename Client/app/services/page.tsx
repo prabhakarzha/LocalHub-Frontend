@@ -67,23 +67,20 @@ export default function ServicesPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] py-16 pt-24">
-      {/* Overlay blur effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/40 via-pink-900/30 to-blue-900/40 backdrop-blur-3xl"></div>
-
+    <div className="min-h-screen bg-slate-1200 text-white p-24">
       <div className="container mx-auto px-6 relative z-10">
         {/* Heading */}
         <h1 className="text-5xl font-extrabold text-center bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 text-transparent bg-clip-text drop-shadow-lg">
           Explore Local Services
         </h1>
-        <p className="text-center text-gray-200 mt-4 max-w-2xl mx-auto">
+        <p className="text-center text-gray-300 mt-4 max-w-2xl mx-auto">
           Connect with trusted tutors, repair experts, and local businesses.
         </p>
 
         {/* Booking Popup */}
         {popupVisible && (
           <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50">
-            <div className="relative backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-8 max-w-md w-full space-y-5 animate-fade-in">
+            <div className="relative backdrop-blur-lg bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-8 max-w-md w-full space-y-5 animate-fade-in">
               <h2 className="text-2xl font-bold text-center bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 text-transparent bg-clip-text drop-shadow-md">
                 Book This Service
               </h2>
@@ -124,7 +121,7 @@ export default function ServicesPage() {
         {/* Service Cards */}
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
           {services.length === 0 ? (
-            <p className="col-span-3 text-center text-gray-200">
+            <p className="col-span-3 text-center text-gray-300">
               No services available right now.
             </p>
           ) : (

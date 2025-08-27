@@ -29,7 +29,8 @@ export default function LayoutWrapper({
           pathname === "/signup" ||
           pathname === "/events" ||
           pathname === "/services" ||
-          pathname === "/profile"
+          pathname === "/profile" ||
+          pathname === "/discovereventpage"
             ? "p-0"
             : "container mx-auto px-6 py-8"
         } ${className ?? ""}`}

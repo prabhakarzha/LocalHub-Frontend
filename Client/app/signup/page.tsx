@@ -35,8 +35,7 @@ export default function SignupPage() {
     <div
       className="relative flex items-center justify-center min-h-screen 
   w-screen max-w-[100vw] px-4 overflow-x-hidden 
-  bg-gradient-to-br from-purple-700 via-purple-800 to-purple-900
-  pt-24"
+  bg-gradient-to-br from-slate-1200 via-purple-1200 to-slate-1200 pt-24"
     >
       {" "}
       {/* Background Effects */}

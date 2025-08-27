@@ -1,5 +1,3 @@
-import { Heart, Code } from "lucide-react";
-
 export default function Footer() {
   return (
     <footer className="relative mt-16 overflow-hidden">

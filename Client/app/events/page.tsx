@@ -68,33 +68,30 @@ export default function EventsPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] py-16 pt-24">
-      {/* Overlay blur effect for glassmorphism look */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/40 via-pink-900/30 to-blue-900/40 backdrop-blur-3xl"></div>
-
+    <div className="min-h-screen bg-slate-1200 text-white p-24">
       <div className="container mx-auto px-6 relative z-10">
         {/* Heading */}
         <h1 className="text-5xl font-extrabold text-center bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 text-transparent bg-clip-text drop-shadow-lg">
-          Discover Local Events
+          Explore Local Events
         </h1>
-        <p className="text-center text-gray-200 mt-4 max-w-2xl mx-auto">
+        <p className="text-center text-gray-300 mt-4 max-w-2xl mx-auto">
           Join exciting community meetups, sales, and more happening near you.
         </p>
 
         {/* Success Popup */}
         {popupVisible && (
           <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-            <div className="rounded-2xl shadow-xl p-8 max-w-sm w-full text-center animate-fade-in bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-              <CheckCircle className="w-14 h-14 text-green-500 mx-auto mb-3 animate-bounce" />
+            <div className="rounded-2xl shadow-xl p-8 max-w-sm w-full text-center animate-fade-in bg-white/10 backdrop-blur-lg border border-white/20">
+              <CheckCircle className="w-14 h-14 text-green-400 mx-auto mb-3 animate-bounce" />
 
-              <h2 className="text-2xl font-bold text-black-600 mb-2">
+              <h2 className="text-2xl font-bold text-white mb-2">
                 RSVP Successful!
               </h2>
 
-              <p className="text-gray-700 mb-4">
+              <p className="text-gray-300 mb-4">
                 Your booking is confirmed ✅ <br />
                 Redirecting to <b>Upcoming Bookings</b> in your profile in{" "}
-                <span className="text-blue-600 font-semibold">
+                <span className="text-blue-400 font-semibold">
                   {redirectCountdown}
                 </span>{" "}
                 sec...
@@ -113,7 +110,7 @@ export default function EventsPage() {
         {/* Event Cards */}
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
           {events.length === 0 ? (
-            <p className="col-span-3 text-center text-gray-200">
+            <p className="col-span-3 text-center text-gray-300">
               No events available right now.
             </p>
           ) : (
@@ -141,11 +138,11 @@ export default function EventsPage() {
                 {/* Event Content */}
                 <div className="p-6 text-white">
                   <h3 className="text-2xl font-bold mb-3">{event.title}</h3>
-                  <div className="flex items-center text-sm gap-2 mb-2">
+                  <div className="flex items-center text-sm gap-2 mb-2 text-gray-300">
                     <Calendar className="w-4 h-4 text-yellow-300" />
                     {new Date(event.date).toLocaleDateString()}
                   </div>
-                  <div className="flex items-center text-sm gap-2 mb-5">
+                  <div className="flex items-center text-sm gap-2 mb-5 text-gray-300">
                     <MapPin className="w-4 h-4 text-pink-300" />
                     {event.location}
                   </div>
