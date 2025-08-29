@@ -15,7 +15,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { fetchProfile } from "@/redux/slices/authSlice";
-import { fetchBookings, cancelBooking } from "@/redux/slices/bookingsSlice";
+import { getBookings, cancelBooking } from "@/redux/slices/bookingsSlice";
 import {
   fetchServiceBookings,
   cancelServiceBooking,
@@ -54,7 +54,7 @@ export default function ProfilePage() {
       router.push("/login");
     } else {
       if (!user) dispatch(fetchProfile(token));
-      dispatch(fetchBookings());
+      dispatch(getBookings());
       dispatch(fetchServiceBookings())
         .unwrap()
         .then((res) => console.log("Fetched Service Bookings:", res))

@@ -17,14 +17,20 @@ export default function Navbar() {
 
   const { token, user } = useSelector((state: any) => state.auth);
 
-  // ✅ Profile tab only jab login hoga
+  // ✅ Profile tab only jab login hoga// ✅ Nav items
   const navItems = [
     { href: "/", label: "Home", protected: false },
     { href: "/events", label: "Events", protected: true },
     { href: "/services", label: "Services", protected: true },
-    ...(token ? [{ href: "/profile", label: "Profile", protected: true }] : []),
   ];
 
+  // Agar admin nahi hai to Profile & Dashboard dikhaaye
+  if (token && user?.role !== "admin") {
+    navItems.push({ href: "/profile", label: "Profile", protected: true });
+    navItems.push({ href: "/dashboard", label: "Dashboard", protected: true });
+  }
+
+  // Agar admin hai to sirf Admin link dikhaye
   if (user?.role === "admin") {
     const isHome = pathname === "/";
     navItems.push({
@@ -58,8 +64,6 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Navbar */}
-
       <nav className="fixed top-0 left-0 w-full bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 backdrop-blur-md bg-opacity-95 text-white shadow-xl z-50 overflow-hidden">
         {/* Background Effects */}
         <div className="absolute inset-0 overflow-hidden">

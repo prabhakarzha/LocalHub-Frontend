@@ -1,7 +1,7 @@
 import React from "react";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, X } from "lucide-react";
 
-// Gradient Heading Component
+/* ----------------- Gradient Heading ------------------ */
 export const GradientHeading = ({ text, size = "3xl" }) => (
   <h2
     className={`bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent font-bold text-${size}`}
@@ -10,18 +10,19 @@ export const GradientHeading = ({ text, size = "3xl" }) => (
   </h2>
 );
 
-// Primary Button Component
+/* ----------------- Primary Button ------------------ */
+/* ----------------- Primary Button ------------------ */
 export const PrimaryButton = ({
   children,
   onClick,
   type = "button",
-  disabled,
+  disabled = false,
 }) => (
   <button
     type={type}
     onClick={onClick}
     disabled={disabled}
-    className={`w-full sm:w-auto px-5 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium hover:opacity-90 transition ${
+    className={`px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-md flex items-center gap-2 transition ${
       disabled ? "opacity-60 cursor-not-allowed" : ""
     }`}
   >
@@ -29,7 +30,7 @@ export const PrimaryButton = ({
   </button>
 );
 
-// Input Field Component (responsive full width)
+/* ----------------- Input Field ------------------ */
 export const InputField = ({
   label,
   type = "text",
@@ -51,23 +52,32 @@ export const InputField = ({
   </div>
 );
 
-// Modal Wrapper (scaled better for small screens)
-export const ModalWrapper = ({ onClose, title, children }) => (
-  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-    <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-lg relative">
-      <button
-        className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-        onClick={onClose}
-      >
-        ✕
-      </button>
-      <h3 className="text-2xl font-semibold mb-6">{title}</h3>
-      {children}
-    </div>
-  </div>
-);
+/* ----------------- Modal Wrapper ------------------ */
+// Modal Wrapper (always center in page)
+import ReactDOM from "react-dom";
 
-// Stat Card for Dashboard (padding adjusted for phones)
+export const ModalWrapper = ({ onClose, title, children }) => {
+  return ReactDOM.createPortal(
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+      <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto relative">
+        {/* Close Button */}
+        <button
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          onClick={onClose}
+        >
+          ✕
+        </button>
+
+        {/* Title */}
+        <h3 className="text-2xl font-semibold mb-6 text-center">{title}</h3>
+        {children}
+      </div>
+    </div>,
+    document.body // ⬅️ ab modal hamesha dashboard ke root (body) me render hoga
+  );
+};
+
+/* ----------------- Stat Card ------------------ */
 export const StatCard = ({ stat }) => (
   <div
     className={`p-4 sm:p-6 rounded-2xl shadow-lg text-white bg-gradient-to-r ${stat.gradient} flex flex-col items-center`}
@@ -78,9 +88,7 @@ export const StatCard = ({ stat }) => (
   </div>
 );
 
-/* ----------------- NEW COMPONENTS ------------------ */
-
-// Events Table Component (now fully responsive & safe for non-array)
+/* ----------------- Events Table ------------------ */
 export const EventsTable = ({ events, loading, handleEdit, handleDelete }) => {
   const safeEvents = Array.isArray(events) ? events : [];
 
@@ -140,7 +148,7 @@ export const EventsTable = ({ events, loading, handleEdit, handleDelete }) => {
   );
 };
 
-// Event Form Component (now responsive)
+/* ----------------- Event Form ------------------ */
 export const EventForm = ({
   formData,
   setFormData,
@@ -181,13 +189,19 @@ export const EventForm = ({
       placeholder="₹500 / Free"
       onChange={(e) => setFormData({ ...formData, price: e.target.value })}
     />
-    <InputField
-      label="Event Image"
-      type="file"
-      onChange={(e) =>
-        setFormData({ ...formData, image: e.target.files[0]?.name })
-      }
-    />
+
+    {/* File input fixed */}
+    <div className="flex flex-col space-y-2 w-full">
+      <label className="font-medium text-gray-700">Event Image</label>
+      <input
+        type="file"
+        onChange={(e) =>
+          setFormData({ ...formData, image: e.target.files?.[0] || null })
+        }
+        className="border border-gray-300 rounded-lg p-2 bg-white text-gray-800"
+      />
+    </div>
+
     <div className="flex justify-end">
       <PrimaryButton type="submit" disabled={saving}>
         {saving

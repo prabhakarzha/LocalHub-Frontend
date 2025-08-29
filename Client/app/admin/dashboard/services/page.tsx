@@ -1,207 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { RootState } from "@/src/redux/store";
 import { useAppDispatch, useAppSelector } from "@/src/redux/hooks";
-import { getServices, addService } from "@/src/redux/slices/servicesSlice";
-
-export default function ServicesPage() {
-  const dispatch = useAppDispatch();
-
-  // Redux state
-  const { services, loading } = useAppSelector(
-    (state: RootState) =>
-      state.services as { services: ServiceType[]; loading: boolean }
-  );
-
-  const user = useAppSelector((state: RootState) => state.auth.user);
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const [form, setForm] = useState({
-    title: "",
-    category: "",
-    description: "",
-    contact: "",
-    price: "",
-    image: null as File | null,
-  });
-
-  useEffect(() => {
-    dispatch(getServices());
-  }, [dispatch]);
-
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value, files } = e.target as HTMLInputElement;
-    if (files) {
-      setForm({ ...form, [name]: files[0] });
-    } else {
-      setForm({ ...form, [name]: value });
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const data = new FormData();
-    data.append("title", form.title);
-    data.append("category", form.category);
-    data.append("description", form.description);
-    data.append("contact", form.contact);
-    data.append("price", form.price);
-    if (form.image) {
-      data.append("image", form.image);
-    }
-
-    // ✅ Add userId if available
-    if (user && user._id) {
-      data.append("userId", user._id);
-    }
-
-    await dispatch(addService(data) as any);
-    setIsModalOpen(false);
-
-    setForm({
-      title: "",
-      category: "",
-      description: "",
-      contact: "",
-      price: "",
-      image: null,
-    });
-  };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 py-10 px-6">
-      <div className="max-w-6xl mx-auto bg-white bg-opacity-90 p-6 rounded-2xl shadow-lg">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">Manage Services</h1>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg shadow hover:opacity-90"
-          >
-            + Add Service
-          </button>
-        </div>
-
-        {/* Services Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse rounded-lg overflow-hidden bg-white">
-            <thead>
-              <tr className="bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 text-gray-700">
-                <th className="p-3 text-left">Title</th>
-                <th className="p-3 text-left">Category</th>
-                <th className="p-3 text-left">Contact</th>
-                <th className="p-3 text-left">Price</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={4} className="p-4 text-center text-gray-500">
-                    Loading services...
-                  </td>
-                </tr>
-              ) : (
-                services.map((service) => (
-                  <tr
-                    key={service._id}
-                    className="border-t hover:bg-gray-50 transition"
-                  >
-                    <td className="p-3 text-gray-800">{service.title}</td>
-                    <td className="p-3 text-gray-800">{service.category}</td>
-                    <td className="p-3 text-gray-800">{service.contact}</td>
-                    <td className="p-3 text-gray-800">{service.price}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Modal for Adding Service */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-6 rounded-xl w-full max-w-lg shadow-2xl relative text-white">
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute top-3 right-3 text-white hover:text-gray-200 text-2xl"
-            >
-              ✕
-            </button>
-            <h2 className="text-2xl font-bold mb-4 text-center">
-              Add New Service
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                type="text"
-                name="title"
-                placeholder="Service Title"
-                value={form.title}
-                onChange={handleChange}
-                className="w-full px-4 py-2 rounded bg-white text-gray-800"
-                required
-              />
-              <select
-                name="category"
-                value={form.category}
-                onChange={handleChange}
-                className="w-full px-4 py-2 rounded bg-white text-gray-800"
-                required
-              >
-                <option value="">Select Category</option>
-                <option value="Tutor">Tutor</option>
-                <option value="Repair">Repair</option>
-                <option value="Business">Business</option>
-              </select>
-              <textarea
-                name="description"
-                placeholder="Service Description"
-                value={form.description}
-                onChange={handleChange}
-                className="w-full px-4 py-2 rounded bg-white text-gray-800"
-              />
-              <input
-                type="text"
-                name="contact"
-                placeholder="Contact Info"
-                value={form.contact}
-                onChange={handleChange}
-                className="w-full px-4 py-2 rounded bg-white text-gray-800"
-                required
-              />
-              <input
-                type="text"
-                name="price"
-                placeholder="Price (₹)"
-                value={form.price}
-                onChange={handleChange}
-                className="w-full px-4 py-2 rounded bg-white text-gray-800"
-              />
-              <input
-                type="file"
-                name="image"
-                onChange={handleChange}
-                className="w-full text-gray-100"
-              />
-              <button
-                type="submit"
-                className="w-full bg-white text-gray-900 py-2 rounded-lg font-bold hover:bg-gray-100"
-              >
-                Save Service
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
+import {
+  getServices,
+  addService,
+  editService,
+  removeService,
+} from "@/src/redux/slices/servicesSlice";
+import { GradientHeading, PrimaryButton } from "@/ui/eventHelpers";
+import { ServicesTable, ServiceForm } from "@/ui/serviceHelpers";
+import { PlusCircle } from "lucide-react";
 
 // Types
 type ServiceType = {
@@ -211,6 +22,142 @@ type ServiceType = {
   description: string;
   contact: string;
   price: string;
-  image?: string;
+  image?: File | null;
   userId?: string;
 };
+
+export default function ServicesPage() {
+  const dispatch = useAppDispatch();
+
+  // Redux state
+  const { services, loading } = useAppSelector(
+    (state: RootState) =>
+      state.services as { services: ServiceType[]; loading: boolean }
+  );
+  const user = useAppSelector((state: RootState) => state.auth.user);
+
+  // Local state
+  const [formData, setFormData] = useState<ServiceType>({
+    title: "",
+    category: "",
+    description: "",
+    contact: "",
+    price: "Free",
+    image: null,
+  });
+
+  const [showModal, setShowModal] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false); // for portal
+
+  useEffect(() => {
+    dispatch(getServices());
+  }, [dispatch]);
+
+  useEffect(() => {
+    setMounted(true); // portal mount check
+  }, []);
+
+  const handleCreate = () => {
+    setFormData({
+      title: "",
+      category: "",
+      description: "",
+      contact: "",
+      price: "Free",
+      image: null,
+    });
+    setEditIndex(null);
+    setShowModal(true);
+  };
+
+  const handleEdit = (index: number) => {
+    const service = services[index];
+    if (!service) return;
+    setFormData({
+      title: service.title || "",
+      category: service.category || "",
+      description: service.description || "",
+      contact: service.contact || "",
+      price: service.price || "Free",
+      image: null, // not reloading existing file
+    });
+    setEditIndex(index);
+    setShowModal(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Are you sure you want to delete this service?")) {
+      await dispatch(removeService(id) as any);
+    }
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+
+    try {
+      const data = new FormData();
+      data.append("title", formData.title);
+      data.append("category", formData.category);
+      data.append("description", formData.description);
+      data.append("contact", formData.contact);
+      data.append("price", formData.price);
+      if (formData.image) data.append("image", formData.image);
+
+      if (user && user._id) {
+        data.append("userId", user._id);
+      }
+
+      if (editIndex !== null) {
+        const id = services[editIndex]?._id;
+        if (id) await dispatch(editService({ id, serviceData: data }) as any);
+      } else {
+        await dispatch(addService(data) as any);
+      }
+
+      setShowModal(false);
+    } catch (error) {
+      console.error("Error saving service:", error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="mt-8 bg-black/10 p-4 sm:p-8 rounded-2xl shadow-lg backdrop-blur-md overflow-x-auto">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
+        <GradientHeading text="Services" size="2xl" />
+        <PrimaryButton onClick={handleCreate}>
+          <PlusCircle className="w-5 h-5 mr-2 inline-block" /> Add Service
+        </PrimaryButton>
+      </div>
+
+      <div className="bg-black/70 rounded-xl shadow-inner overflow-hidden">
+        <ServicesTable
+          services={services}
+          loading={loading}
+          handleEdit={handleEdit}
+          handleDelete={handleDelete}
+        />
+      </div>
+
+      {/* Modal render with Portal */}
+      {mounted &&
+        showModal &&
+        createPortal(
+          <ServiceForm
+            formData={formData}
+            setFormData={setFormData}
+            onSubmit={handleSave}
+            editIndex={editIndex}
+            saving={saving}
+            showModal={showModal}
+            setShowModal={setShowModal}
+          />,
+          document.body
+        )}
+    </div>
+  );
+}
