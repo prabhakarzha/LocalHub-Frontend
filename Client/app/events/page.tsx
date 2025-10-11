@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Calendar, MapPin, CheckCircle } from "lucide-react";
+import { Calendar, MapPin, CheckCircle, User } from "lucide-react";
 import Image from "next/image";
 import { getEvents } from "@/redux/slices/eventsSlice";
 import { bookEvent } from "@/redux/slices/bookingsSlice";
@@ -14,7 +14,7 @@ export default function EventsPage() {
   const router = useRouter();
 
   const { events, loading } = useSelector((state: any) => state.events);
-  const { token } = useSelector((state: any) => state.auth);
+  const { token, user } = useSelector((state: any) => state.auth); // ✅ get logged in user
 
   const [popupVisible, setPopupVisible] = useState(false);
   const [redirectCountdown, setRedirectCountdown] = useState(3);
@@ -82,6 +82,7 @@ export default function EventsPage() {
             Join exciting community meetups, sales, and more happening near you.
           </p>
         </div>
+
         {/* Success Popup */}
         {popupVisible && (
           <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 px-4">
@@ -144,6 +145,20 @@ export default function EventsPage() {
                   <h3 className="text-xl sm:text-2xl font-bold mb-3">
                     {event.title}
                   </h3>
+
+                  {/* ✅ Creator Info */}
+                  <div className="flex items-center text-sm gap-2 mb-2 text-gray-400">
+                    <User className="w-4 h-4 text-blue-300" />
+                    <span>
+                      Created by{" "}
+                      <b>
+                        {event.createdBy?.name || event.createdBy?.username
+                          ? event.createdBy?.name || event.createdBy?.username
+                          : "Admin"}
+                      </b>
+                    </span>
+                  </div>
+
                   <div className="flex items-center text-sm gap-2 mb-2 text-gray-300">
                     <Calendar className="w-4 h-4 text-yellow-300" />
                     {new Date(event.date).toLocaleDateString()}

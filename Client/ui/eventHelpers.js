@@ -88,6 +88,7 @@ export const StatCard = ({ stat }) => (
 );
 
 /* ----------------- Events Table ------------------ */
+
 export const EventsTable = ({ events, loading, handleEdit, handleDelete }) => {
   const safeEvents = Array.isArray(events) ? events : [];
 
@@ -103,13 +104,14 @@ export const EventsTable = ({ events, loading, handleEdit, handleDelete }) => {
               <th className="py-3 px-4 text-left font-semibold">Date</th>
               <th className="py-3 px-4 text-left font-semibold">Location</th>
               <th className="py-3 px-4 text-left font-semibold">Price</th>
+              <th className="py-3 px-4 text-left font-semibold">Created By</th>
               <th className="py-3 px-4 text-center font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody>
             {safeEvents.length === 0 ? (
               <tr>
-                <td colSpan="5" className="text-center py-4 text-gray-500">
+                <td colSpan={6} className="text-center py-4 text-gray-500">
                   No events found.
                 </td>
               </tr>
@@ -123,6 +125,10 @@ export const EventsTable = ({ events, loading, handleEdit, handleDelete }) => {
                   <td className="py-3 px-4">{event.date}</td>
                   <td className="py-3 px-4">{event.location}</td>
                   <td className="py-3 px-4">{event.price || "Free"}</td>
+                  <td className="py-3 px-4">
+                    {event.createdBy?.name ||
+                      (event.status === "approved" ? "Admin" : "User")}
+                  </td>
                   <td className="py-3 px-4 flex justify-center gap-4">
                     <button
                       onClick={() => handleEdit(idx)}

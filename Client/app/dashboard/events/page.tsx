@@ -1,5 +1,3 @@
-"use client";
-
 import AddEventModal from "@/app/components/shared/AddEventModal";
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -14,22 +12,24 @@ type EventType = {
   location: string;
   price: string;
   image?: string;
+  status?: string;
+  createdBy?: {
+    _id: string;
+    name: string;
+  };
 };
 
 export default function UserEvents() {
   const dispatch = useAppDispatch();
   const { events, loading } = useAppSelector((state) => state.events);
-
+  const { token, user } = useAppSelector((state: any) => state.auth);
   const [showModal, setShowModal] = useState(false);
   const [editEventData, setEditEventData] = useState<EventType | null>(null);
 
-  const { token } = useAppSelector((state: any) => state.auth);
   const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-  const formatDateForInput = (isoDate?: string) => {
-    return isoDate ? isoDate.split("T")[0] : "";
-  };
+  const formatDateForInput = (isoDate?: string) => isoDate?.split("T")[0] || "";
 
   useEffect(() => {
     dispatch(getEvents());
@@ -44,6 +44,10 @@ export default function UserEvents() {
       if (!token) {
         alert("You must be logged in to create an event!");
         return;
+      }
+
+      if (!isEdit) {
+        formData.append("createdBy", user?._id || "");
       }
 
       if (isEdit && eventId) {
@@ -61,9 +65,7 @@ export default function UserEvents() {
             "Content-Type": "multipart/form-data",
           },
         });
-        alert(
-          "Event created successfully! It will appear on the events page once approved by admin."
-        );
+        alert("Event created successfully! Waiting for admin approval.");
       }
 
       dispatch(getEvents());
@@ -85,9 +87,8 @@ export default function UserEvents() {
     setShowModal(true);
   };
 
-  const handleDelete = (eventId: string) => {
+  const handleDelete = (eventId: string) =>
     console.log("Delete event:", eventId);
-  };
 
   return (
     <div>
@@ -102,7 +103,7 @@ export default function UserEvents() {
       </button>
 
       <EventsTable
-        events={events as EventType[]} // ✅ fixed type assertion
+        events={events as EventType[]}
         loading={loading}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
