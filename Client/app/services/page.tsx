@@ -67,15 +67,17 @@ export default function ServicesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-1200 text-white p-24">
-      <div className="container mx-auto px-6 relative z-10">
+    <div className="min-h-screen bg-slate-1200 text-white px-4 sm:px-8 md:px-16 lg:px-24 py-16 sm:py-24">
+      <div className="container mx-auto relative z-10">
         {/* Heading */}
-        <h1 className="text-5xl font-extrabold text-center bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 text-transparent bg-clip-text drop-shadow-lg">
-          Explore Local Services
-        </h1>
-        <p className="text-center text-gray-300 mt-4 max-w-2xl mx-auto">
-          Connect with trusted tutors, repair experts, and local businesses.
-        </p>
+        <div className="mt-8 sm:mt-12">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-center bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 text-transparent bg-clip-text drop-shadow-lg">
+            Explore Local Services
+          </h1>
+          <p className="text-center text-gray-300 mt-5 sm:mt-6 max-w-2xl mx-auto text-sm sm:text-base">
+            Connect with trusted tutors, repair experts, and local businesses.
+          </p>
+        </div>
 
         {/* Booking Popup */}
         {popupVisible && (
