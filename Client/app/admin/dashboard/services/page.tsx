@@ -10,11 +10,31 @@ import {
   editService,
   removeService,
 } from "@/src/redux/slices/servicesSlice";
-import { GradientHeading, PrimaryButton } from "@/ui/eventHelpers";
+import { GradientHeading } from "@/ui/eventHelpers";
 import { ServicesTable, ServiceForm } from "@/ui/serviceHelpers";
 import { PlusCircle } from "lucide-react";
 
-// Types
+// ✅ Local PrimaryButton fixed for TypeScript + responsiveness
+type PrimaryButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  children: React.ReactNode;
+};
+
+function PrimaryButton({
+  children,
+  className = "",
+  ...props
+}: PrimaryButtonProps) {
+  return (
+    <button
+      {...props}
+      className={`bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+    >
+      {children}
+    </button>
+  );
+}
+
+// ✅ Types
 type ServiceType = {
   _id?: string;
   title: string;
@@ -29,14 +49,14 @@ type ServiceType = {
 export default function ServicesPage() {
   const dispatch = useAppDispatch();
 
-  // Redux state
+  // ✅ Redux state
   const { services, loading } = useAppSelector(
     (state: RootState) =>
       state.services as { services: ServiceType[]; loading: boolean }
   );
   const user = useAppSelector((state: RootState) => state.auth.user);
 
-  // Local state
+  // ✅ Local state
   const [formData, setFormData] = useState<ServiceType>({
     title: "",
     category: "",
@@ -59,6 +79,7 @@ export default function ServicesPage() {
     setMounted(true); // portal mount check
   }, []);
 
+  // ✅ Create service
   const handleCreate = () => {
     setFormData({
       title: "",
@@ -72,6 +93,7 @@ export default function ServicesPage() {
     setShowModal(true);
   };
 
+  // ✅ Edit service
   const handleEdit = (index: number) => {
     const service = services[index];
     if (!service) return;
@@ -87,12 +109,14 @@ export default function ServicesPage() {
     setShowModal(true);
   };
 
+  // ✅ Delete service
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this service?")) {
       await dispatch(removeService(id) as any);
     }
   };
 
+  // ✅ Save service
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -126,36 +150,49 @@ export default function ServicesPage() {
   };
 
   return (
-    <div className="mt-8 bg-black/10 p-4 sm:p-8 rounded-2xl shadow-lg backdrop-blur-md overflow-x-auto">
+    <div className="mt-6 sm:mt-8 bg-black/10 p-4 sm:p-8 rounded-2xl shadow-lg backdrop-blur-md overflow-x-auto">
+      {/* Header Section */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
         <GradientHeading text="Services" size="2xl" />
-        <PrimaryButton onClick={handleCreate}>
-          <PlusCircle className="w-5 h-5 mr-2 inline-block" /> Add Service
-        </PrimaryButton>
+        <div className="w-full sm:w-auto flex justify-end">
+          <PrimaryButton
+            onClick={handleCreate}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2"
+          >
+            <PlusCircle className="w-5 h-5" /> Add Service
+          </PrimaryButton>
+        </div>
       </div>
 
-      <div className="bg-black/70 rounded-xl shadow-inner overflow-hidden">
-        <ServicesTable
-          services={services}
-          loading={loading}
-          handleEdit={handleEdit}
-          handleDelete={handleDelete}
-        />
+      {/* Table Section */}
+      <div className="bg-black/70 rounded-xl shadow-inner overflow-hidden border border-gray-800">
+        <div className="overflow-x-auto">
+          <ServicesTable
+            services={services}
+            loading={loading}
+            handleEdit={handleEdit}
+            handleDelete={handleDelete}
+          />
+        </div>
       </div>
 
-      {/* Modal render with Portal */}
+      {/* Modal Render via Portal */}
       {mounted &&
         showModal &&
         createPortal(
-          <ServiceForm
-            formData={formData}
-            setFormData={setFormData}
-            onSubmit={handleSave}
-            editIndex={editIndex}
-            saving={saving}
-            showModal={showModal}
-            setShowModal={setShowModal}
-          />,
+          <div className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm z-50 px-4">
+            <div className="w-full max-w-lg sm:max-w-2xl bg-gray-900 p-4 sm:p-6 rounded-2xl shadow-xl overflow-y-auto max-h-[90vh]">
+              <ServiceForm
+                formData={formData}
+                setFormData={setFormData}
+                onSubmit={handleSave}
+                editIndex={editIndex}
+                saving={saving}
+                showModal={showModal}
+                setShowModal={setShowModal}
+              />
+            </div>
+          </div>,
           document.body
         )}
     </div>

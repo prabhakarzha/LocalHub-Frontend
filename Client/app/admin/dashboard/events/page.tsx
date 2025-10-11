@@ -28,7 +28,7 @@ function PrimaryButton({
   return (
     <button
       {...props}
-      className={`bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+      className={`bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base ${className}`}
     >
       {children}
     </button>
@@ -121,23 +121,31 @@ export default function EventsPage() {
   };
 
   return (
-    <div className="mt-8 bg-black/10 p-4 sm:p-8 rounded-2xl shadow-lg backdrop-blur-md overflow-x-auto">
+    <div className="mt-6 sm:mt-8 bg-black/10 p-4 sm:p-8 rounded-2xl shadow-lg backdrop-blur-md">
+      {/* Header Section */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
         <GradientHeading text="Events" size="2xl" />
-        <PrimaryButton onClick={handleCreate}>
-          <PlusCircle className="w-5 h-5 mr-2 inline-block" /> Add Event
-        </PrimaryButton>
+        <div className="flex justify-end">
+          <PrimaryButton onClick={handleCreate} className="w-full sm:w-auto">
+            <PlusCircle className="w-5 h-5" />
+            <span>Add Event</span>
+          </PrimaryButton>
+        </div>
       </div>
 
-      <div className="bg-black/70 rounded-xl shadow-inner overflow-hidden">
-        <EventsTable
-          events={events}
-          loading={loading}
-          handleEdit={handleEdit}
-          handleDelete={handleDelete}
-        />
+      {/* Events Table Container */}
+      <div className="bg-black/70 rounded-xl shadow-inner overflow-x-auto">
+        <div className="min-w-[600px] sm:min-w-full">
+          <EventsTable
+            events={events}
+            loading={loading}
+            handleEdit={handleEdit}
+            handleDelete={handleDelete}
+          />
+        </div>
       </div>
 
+      {/* Add/Edit Modal */}
       {showModal && (
         <AddEventModal
           isOpen={showModal}
