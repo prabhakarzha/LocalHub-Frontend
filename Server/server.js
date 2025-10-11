@@ -27,6 +27,7 @@ const allowedOrigins = [
   "https://local-hub.vercel.app",
 ];
 
+// ✅ CORS middleware
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -38,13 +39,27 @@ app.use(
       }
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allow all methods
-    allowedHeaders: ["Content-Type", "Authorization"], // Required for login/signup
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // ✅ Added PATCH
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// Handle preflight requests explicitly (for mobile)
-app.options("*", cors());
+// ✅ Handle preflight requests explicitly
+app.options(
+  "*",
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.some((o) => origin.startsWith(o))) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
