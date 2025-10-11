@@ -207,7 +207,7 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* ✅ Mobile Menu */}
       {isMenuOpen && (
         <div className="relative z-10 md:hidden bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 text-white px-6 py-4 space-y-4 shadow-md">
           {navItems.map((item) => (
@@ -224,14 +224,13 @@ export default function Navbar() {
             </button>
           ))}
 
-          {/* Mobile Admin Pending Events Button */}
+          {/* Admin Pending Events (Mobile) */}
           {token && user?.role === "admin" && (
             <div className="mt-2">
               <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold text-left">
                 Pending Events ({pendingEvents.length})
               </button>
 
-              {/* Dropdown for pending events */}
               {pendingEvents.length > 0 && (
                 <div className="mt-2 w-full bg-white text-gray-800 rounded-lg shadow-lg overflow-hidden">
                   {pendingEvents.map((event) => (
@@ -261,7 +260,25 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* Mobile Logout */}
+          {/* ✅ Show Login / Signup when user not logged in */}
+          {!token && (
+            <div className="flex flex-col gap-3 mt-4">
+              <Link
+                href="/login"
+                className="w-full px-4 py-2 border border-white rounded-lg text-center hover:bg-white hover:text-blue-700 transition"
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                className="w-full px-4 py-2 bg-white text-purple-700 font-semibold rounded-lg text-center hover:bg-gray-100 transition"
+              >
+                Sign Up
+              </Link>
+            </div>
+          )}
+
+          {/* Logout (Mobile) */}
           {token && (
             <button
               onClick={handleLogout}
