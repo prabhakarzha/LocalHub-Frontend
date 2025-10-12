@@ -78,7 +78,7 @@ export default function LoginPage() {
           Welcome Back
         </h2>
         <p className="text-center text-gray-300 mt-2">
-          Please sign in to continue
+          Please sign in to continue ABCDEF
         </p>
 
         {error && (
