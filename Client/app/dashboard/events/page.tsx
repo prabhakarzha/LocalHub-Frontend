@@ -1,3 +1,5 @@
+"use client";
+
 import AddEventModal from "@/app/components/shared/AddEventModal";
 import { useState, useEffect } from "react";
 import axios from "axios";
