@@ -65,11 +65,18 @@ export default function DashboardPage() {
       color: "from-blue-400 to-blue-600",
     },
     {
-      title: "Service Bookings",
+      title: "User Service",
       value: 30,
       icon: <Users className="w-6 h-6" />,
       color: "from-green-400 to-green-600",
     },
+    {
+      title: "Earnings",
+      value: "$1,250",
+      icon: <DollarSign className="w-6 h-6" />,
+      color: "from-purple-400 to-purple-600",
+    },
+
     {
       title: "Earnings",
       value: "$1,250",
@@ -85,9 +92,14 @@ export default function DashboardPage() {
       onClick: () => setShowModal(true),
     },
     {
-      label: "Manage Events",
+      label: "Add Service",
       icon: <ClipboardList className="w-5 h-5" />,
       onClick: () => alert("Manage Events clicked ✅"),
+    },
+    {
+      label: "View Bookings",
+      icon: <Users className="w-5 h-5" />,
+      onClick: () => alert("View Bookings clicked ✅"),
     },
     {
       label: "View Bookings",
@@ -103,7 +115,7 @@ export default function DashboardPage() {
       </h1>
 
       {/* Stats */}
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-4 gap-6">
         {stats.map((item, index) => (
           <div
             key={index}
@@ -117,7 +129,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Actions */}
-      <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="mt-16 grid grid-cols-1 md:grid-cols-4 gap-6">
         {actions.map((action, index) => (
           <button
             key={index}
