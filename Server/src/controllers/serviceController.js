@@ -1,5 +1,15 @@
 import Service from "../models/Service.js";
 
+// Helper function for consistent server error handling
+const handleServerError = (res, error, context = "") => {
+  console.error(`[ServiceController] ${context} Error:`, error);
+  res.status(500).json({
+    message: `Failed to ${context}`,
+    error: error.message || error,
+    stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+  });
+};
+
 // ✅ Create Service
 export const createService = async (req, res) => {
   console.log("\n=== [ServiceController] createService called ===");
@@ -15,20 +25,21 @@ export const createService = async (req, res) => {
       : "Tutor";
 
     // Required field validation
-    if (!title || !description || !contact) {
-      console.error("[ERROR] Missing required fields:", {
-        title,
-        category,
-        description,
-        contact,
-        price,
-      });
+    if (!title?.trim() || !description?.trim() || !contact?.trim()) {
+      console.error("[ERROR] Missing required fields:", req.body);
       return res
         .status(400)
         .json({ message: "Missing required fields for service" });
     }
 
-    const image = req.file ? req.file.path : "";
+    // Handle file safely
+    let image = "";
+    try {
+      image = req.file?.path || "";
+    } catch (fileErr) {
+      console.warn("[WARN] File upload error:", fileErr);
+    }
+
     const createdBy = req.user?._id || null;
     const userRole = req.user?.role || "user";
     const status = userRole === "admin" ? "approved" : "pending";
@@ -52,11 +63,7 @@ export const createService = async (req, res) => {
 
     res.status(201).json(service);
   } catch (error) {
-    console.error("[ServiceController] Error Creating Service:", error);
-    res.status(500).json({
-      message: "Failed to create service",
-      error: error.message || error,
-    });
+    handleServerError(res, error, "create service");
   }
 };
 
@@ -71,8 +78,7 @@ export const getServices = async (req, res) => {
     console.log(`[DEBUG] Found ${services.length} approved services`);
     res.json(services);
   } catch (error) {
-    console.error("[ServiceController] Fetch Error:", error);
-    res.status(500).json({ message: "Failed to fetch services" });
+    handleServerError(res, error, "fetch services");
   }
 };
 
@@ -86,8 +92,7 @@ export const getUserServices = async (req, res) => {
     );
     res.json({ success: true, services });
   } catch (error) {
-    console.error("[ServiceController] getUserServices Error:", error);
-    res.status(500).json({ message: "Failed to fetch user services" });
+    handleServerError(res, error, "fetch user services");
   }
 };
 
@@ -104,8 +109,7 @@ export const getPendingServices = async (req, res) => {
     );
     res.json({ success: true, services });
   } catch (error) {
-    console.error("[ServiceController] getPendingServices Error:", error);
-    res.status(500).json({ message: "Failed to fetch pending services" });
+    handleServerError(res, error, "fetch pending services");
   }
 };
 
@@ -138,8 +142,7 @@ export const updateServiceStatus = async (req, res) => {
       service,
     });
   } catch (error) {
-    console.error("[ServiceController] updateServiceStatus Error:", error);
-    res.status(500).json({ message: "Failed to update service status" });
+    handleServerError(res, error, "update service status");
   }
 };
 
@@ -156,8 +159,7 @@ export const updateService = async (req, res) => {
     }
     res.json(updatedService);
   } catch (error) {
-    console.error("[ServiceController] Update Error:", error);
-    res.status(500).json({ message: "Failed to update service" });
+    handleServerError(res, error, "update service");
   }
 };
 
@@ -168,8 +170,7 @@ export const deleteService = async (req, res) => {
     if (!deleted) return res.status(404).json({ message: "Service not found" });
     res.json({ message: "Service deleted successfully" });
   } catch (error) {
-    console.error("[ServiceController] Delete Error:", error);
-    res.status(500).json({ message: "Failed to delete service" });
+    handleServerError(res, error, "delete service");
   }
 };
 
@@ -179,7 +180,6 @@ export const getServiceCount = async (req, res) => {
     const totalServices = await Service.countDocuments();
     res.json({ totalServices });
   } catch (error) {
-    console.error("[ServiceController] getServiceCount Error:", error);
-    res.status(500).json({ message: "Server error" });
+    handleServerError(res, error, "get service count");
   }
 };
