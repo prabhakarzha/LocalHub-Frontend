@@ -34,7 +34,7 @@ const serviceSchema = new mongoose.Schema(
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false,
     },
 
     // ✅ Optional approval status (like events)
