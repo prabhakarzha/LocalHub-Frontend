@@ -23,6 +23,7 @@ const router = express.Router();
 // ✅ Keep existing POST route with debug log intact
 router.post(
   "/",
+  authMiddleware, // <--- ADD THIS
   upload.single("image"),
   (req, res, next) => {
     console.log("[ServiceRoutes] POST / - Body:", req.body);
