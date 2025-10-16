@@ -15,6 +15,7 @@ import bookingRoutes from "./src/routes/bookingRoutes.js";
 import serviceRoutes from "./src/routes/serviceRoutes.js";
 import serviceBookingRoutes from "./src/routes/serviceBookingRoutes.js";
 import activeUserRoutes from "./src/routes/activeUserRoutes.js";
+import dailyDigestRoutes from "./src/routes/dailyDigestRoutes.js";
 
 console.log("ENV TEST:", {
   CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
@@ -78,6 +79,7 @@ app.use("/api/bookings", bookingRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api/servicebookings", serviceBookingRoutes);
 app.use("/api/users", activeUserRoutes);
+app.use("/api/daily-digest", dailyDigestRoutes);
 
 const PORT = process.env.PORT || 5000;
 console.log(
