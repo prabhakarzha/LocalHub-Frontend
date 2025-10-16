@@ -11,6 +11,7 @@ const handleServerError = (res, error, context = "") => {
 };
 
 // ✅ Create Service
+// ✅ Create Service
 export const createService = async (req, res) => {
   console.log("\n=== [ServiceController] createService called ===");
   console.log("[DEBUG] Full Body:", req.body);
@@ -20,7 +21,14 @@ export const createService = async (req, res) => {
     const { title, category, description, contact, price } = req.body;
 
     // Validate category value
-    const validCategory = ["Tutor", "Repair", "Business"].includes(category)
+    const validCategory = [
+      "Tutor",
+      "Repair",
+      "Business",
+      "Cleaning",
+      "Beauty",
+      "Other",
+    ].includes(category)
       ? category
       : "Tutor";
 
@@ -40,8 +48,17 @@ export const createService = async (req, res) => {
       console.warn("[WARN] File upload error:", fileErr);
     }
 
-    const createdBy = req.user?._id || null;
+    // ✅ Ensure createdBy always exists
+    const createdBy = req.user?._id || process.env.ADMIN_ID || null;
     const userRole = req.user?.role || "user";
+
+    // If no req.user and ADMIN_ID missing, handle gracefully
+    if (!createdBy) {
+      console.warn(
+        "[WARN] No req.user found — defaulting to admin for createdBy"
+      );
+    }
+
     const status = userRole === "admin" ? "approved" : "pending";
 
     const service = await Service.create({
@@ -58,10 +75,17 @@ export const createService = async (req, res) => {
     console.log("[ServiceController] Service Created:", {
       id: service._id,
       title: service.title,
+      createdBy,
       status: service.status,
     });
 
-    res.status(201).json(service);
+    // ✅ Populate before sending response so frontend gets name/email
+    const populatedService = await Service.findById(service._id).populate(
+      "createdBy",
+      "name email role"
+    );
+
+    res.status(201).json(populatedService);
   } catch (error) {
     handleServerError(res, error, "create service");
   }
