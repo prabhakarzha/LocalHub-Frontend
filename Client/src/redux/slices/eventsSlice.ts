@@ -10,18 +10,25 @@ const normalizeEvents = (data: any) => {
   return Array.isArray(data) ? data : data.events || [];
 };
 
-// ✅ Fetch all events (Admin & normal user)
+// ✅ Fetch all events (Admin & normal user) — with pagination
 export const getEvents = createAsyncThunk(
   "events/getEvents",
-  async (_, { getState }) => {
+  async (
+    { page = 1, limit = 6 }: { page?: number; limit?: number } = {},
+    { getState }
+  ) => {
     const state = getState() as any;
     const token = state.auth.token;
 
-    const response = await axios.get(`${API_BASE_URL}/api/events`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await axios.get(
+      `${API_BASE_URL}/api/events?page=${page}&limit=${limit}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
 
-    return normalizeEvents(response.data);
+    // backend will send { events, pagination } ideally
+    return response.data;
   }
 );
 
@@ -156,6 +163,12 @@ const eventsSlice = createSlice({
     eventCount: 0,
     loading: false,
     error: null as string | null,
+    pagination: {
+      page: 1,
+      totalPages: 1,
+      total: 0,
+      limit: 6,
+    },
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -166,8 +179,17 @@ const eventsSlice = createSlice({
       })
       .addCase(getEvents.fulfilled, (state, action) => {
         state.loading = false;
-        state.events = normalizeEvents(action.payload);
-        state.eventCount = state.events.length;
+
+        // backend sends paginated response
+        if (action.payload?.events && action.payload?.pagination) {
+          state.events = action.payload.events;
+          state.pagination = action.payload.pagination;
+          state.eventCount = action.payload.pagination.total || 0;
+        } else {
+          // fallback (no pagination backend)
+          state.events = normalizeEvents(action.payload);
+          state.eventCount = state.events.length;
+        }
       })
       .addCase(getEvents.rejected, (state, action) => {
         state.loading = false;

@@ -14,14 +14,19 @@ export default function EventsPage() {
   const router = useRouter();
 
   const { events, loading } = useSelector((state: any) => state.events);
-  const { token, user } = useSelector((state: any) => state.auth); // ✅ get logged in user
+  const { token } = useSelector((state: any) => state.auth);
 
   const [popupVisible, setPopupVisible] = useState(false);
   const [redirectCountdown, setRedirectCountdown] = useState(3);
 
+  // ✅ Pagination State
+  const [page, setPage] = useState(1);
+  const limit = 6;
+
+  // ✅ Fetch Events with Pagination
   useEffect(() => {
-    dispatch(getEvents() as any);
-  }, [dispatch]);
+    dispatch(getEvents({ page, limit }) as any);
+  }, [dispatch, page]);
 
   useEffect(() => {
     if (popupVisible) {
@@ -177,6 +182,29 @@ export default function EventsPage() {
               </div>
             ))
           )}
+        </div>
+
+        {/* ✅ Pagination Controls */}
+        <div className="flex justify-center mt-12 gap-4">
+          <button
+            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+            disabled={page === 1}
+            className="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 disabled:opacity-50"
+          >
+            Previous
+          </button>
+
+          <span className="text-gray-300 self-center">Page {page}</span>
+
+          <button
+            onClick={() => {
+              if (events.length === limit) setPage((prev) => prev + 1);
+            }}
+            disabled={events.length < limit}
+            className="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 disabled:opacity-50"
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>
