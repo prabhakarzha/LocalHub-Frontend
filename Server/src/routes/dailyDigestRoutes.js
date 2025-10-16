@@ -5,7 +5,11 @@ import { generateDailyDigest } from "../controllers/dailyDigestController.js";
 
 const router = express.Router();
 
-// Protected route: only logged-in users
-router.get("/", authMiddleware, generateDailyDigest);
+/**
+ * @route   GET /api/daily-digest
+ * @desc    Get the daily digest for the logged-in user
+ * @access  Private
+ */
+router.get("/daily-digest", authMiddleware, generateDailyDigest);
 
 export default router;
