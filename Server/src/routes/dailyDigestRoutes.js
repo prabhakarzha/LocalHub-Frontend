@@ -10,6 +10,6 @@ const router = express.Router();
  * @desc    Get the daily digest for the logged-in user
  * @access  Private
  */
-router.get("/daily-digest", authMiddleware, generateDailyDigest);
+router.get("/", authMiddleware, generateDailyDigest);
 
 export default router;
