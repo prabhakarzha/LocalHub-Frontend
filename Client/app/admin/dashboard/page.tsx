@@ -33,7 +33,7 @@ function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<"events" | "services">("events");
 
   useEffect(() => {
-    dispatch(getEvents());
+    dispatch(getEvents({ page: 1, limit: 6 }));
     dispatch(getServices());
     dispatch(getBookings()); // ✅ fetch bookings
   }, [dispatch]);

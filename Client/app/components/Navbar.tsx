@@ -99,7 +99,7 @@ export default function Navbar() {
       else setPendingServices((prev) => prev.filter((s) => s._id !== id));
 
       alert(`✅ ${type.charAt(0).toUpperCase() + type.slice(1)} approved!`);
-      if (type === "event") dispatch(getEvents() as any);
+      if (type === "event") dispatch(getEvents({ page: 1, limit: 6 }) as any);
       else dispatch(getServices() as any);
     } catch (err) {
       console.error(err);
@@ -120,7 +120,7 @@ export default function Navbar() {
       else setPendingServices((prev) => prev.filter((s) => s._id !== id));
 
       alert(`❌ ${type.charAt(0).toUpperCase() + type.slice(1)} declined!`);
-      if (type === "event") dispatch(getEvents() as any);
+      if (type === "event") dispatch(getEvents({ page: 1, limit: 6 }) as any);
       else dispatch(getServices() as any);
     } catch (err) {
       console.error(err);
