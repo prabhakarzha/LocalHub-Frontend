@@ -61,7 +61,7 @@ export default function EventsPage() {
 
   // ✅ Fetch events on mount
   useEffect(() => {
-    dispatch(getEvents());
+    dispatch(getEvents({ page: 1, limit: 6 }));
   }, [dispatch]);
 
   const handleCreate = () => {
@@ -103,7 +103,7 @@ export default function EventsPage() {
             Authorization: `Bearer ${token}`,
           },
         });
-        dispatch(getEvents());
+        dispatch(getEvents({ page: 1, limit: 6 }));
       } else {
         await axios.post(`${API_BASE_URL}/api/events`, formData, {
           headers: {
@@ -111,7 +111,7 @@ export default function EventsPage() {
             Authorization: `Bearer ${token}`,
           },
         });
-        dispatch(getEvents());
+        dispatch(getEvents({ page: 1, limit: 6 }));
       }
 
       setShowModal(false);

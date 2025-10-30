@@ -34,7 +34,7 @@ export default function UserEvents() {
   const formatDateForInput = (isoDate?: string) => isoDate?.split("T")[0] || "";
 
   useEffect(() => {
-    dispatch(getEvents());
+    dispatch(getEvents({ page: 1, limit: 6 }));
   }, [dispatch]);
 
   const handleSave = async (
@@ -70,7 +70,7 @@ export default function UserEvents() {
         alert("Event created successfully! Waiting for admin approval.");
       }
 
-      dispatch(getEvents());
+      dispatch(getEvents({ page: 1, limit: 6 }));
       setShowModal(false);
       setEditEventData(null);
     } catch (err: any) {
