@@ -79,18 +79,13 @@ export const getUserServices = createAsyncThunk(
   }
 );
 
-// ✅ Fetch service count
+// ✅ Fetch service count (PUBLIC – no token)
 export const fetchServiceCount = createAsyncThunk(
   "services/fetchServiceCount",
-  async (_, { getState }) => {
-    const state = getState() as any;
-    const token = state.auth.token;
-
-    const response = await axios.get(`${API_BASE_URL}/api/services`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    return normalizeServices(response.data).length;
+  async () => {
+    const response = await axios.get(`${API_BASE_URL}/api/services/count`);
+    // backend: { totalServices, approvedServices, pendingServices } etc.
+    return response.data.totalServices || 0;
   }
 );
 

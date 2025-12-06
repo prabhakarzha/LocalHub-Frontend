@@ -32,17 +32,11 @@ export const getEvents = createAsyncThunk(
   }
 );
 
-// ✅ Fetch only event count
+// ✅ Fetch only event count (PUBLIC – no token)
 export const fetchEventCount = createAsyncThunk(
   "events/fetchEventCount",
-  async (_, { getState }) => {
-    const state = getState() as any;
-    const token = state.auth.token;
-
-    const response = await axios.get(`${API_BASE_URL}/api/events/count`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
+  async () => {
+    const response = await axios.get(`${API_BASE_URL}/api/events/count`);
     return response.data.totalEvents || 0;
   }
 );
@@ -210,8 +204,15 @@ const eventsSlice = createSlice({
       })
 
       // ✅ Event Count
+      .addCase(fetchEventCount.pending, (state) => {
+        // optional: you can toggle loading if needed
+      })
       .addCase(fetchEventCount.fulfilled, (state, action) => {
         state.eventCount = action.payload;
+      })
+      .addCase(fetchEventCount.rejected, (state, action) => {
+        // count fail hone pe app break na ho
+        state.error = action.error.message || "Failed to fetch event count";
       })
 
       // ✅ Add Event
