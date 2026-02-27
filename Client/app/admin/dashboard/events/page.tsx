@@ -87,7 +87,7 @@ export default function EventsPage() {
   const handleSave = async (
     formData: FormData,
     isEdit: boolean,
-    eventId?: string
+    eventId?: string,
   ): Promise<void> => {
     try {
       if (!token) {

@@ -12,7 +12,7 @@ export default function LoginPage() {
   const router = useRouter();
 
   const { loading, error, user, token } = useSelector(
-    (state: RootState) => state.auth
+    (state: RootState) => state.auth,
   );
 
   const [email, setEmail] = useState("");
@@ -44,7 +44,7 @@ export default function LoginPage() {
         router.push(redirectPath);
       } else {
         const defaultRoute =
-          user.role === "admin" ? "/admin/dashboard" : "/profile";
+          user.role === "admin" ? "/admin/dashboard" : "/dashboard";
         console.log("Redirecting to default route:", defaultRoute);
         router.push(defaultRoute);
       }
