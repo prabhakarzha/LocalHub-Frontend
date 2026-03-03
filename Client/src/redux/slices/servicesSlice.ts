@@ -17,66 +17,181 @@ export type ServiceType = {
   contact: string;
   price: string;
   image?: string;
+  status?: string;
+  createdBy?: {
+    name: string;
+    email: string;
+    _id?: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+// ✅ Pagination type
+export type PaginationType = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
 };
 
 interface ServiceState {
   services: ServiceType[];
+  allServices: ServiceType[]; // For admin view
   pendingServices: ServiceType[];
   serviceCount: number;
   loading: boolean;
   error: string | null;
+  pagination: PaginationType;
 }
 
 const initialState: ServiceState = {
   services: [],
+  allServices: [],
   pendingServices: [],
   serviceCount: 0,
   loading: false,
   error: null,
+  pagination: {
+    page: 1,
+    limit: 6,
+    total: 0,
+    totalPages: 1,
+  },
 };
 
-// ✅ Fetch all services (protected)
+// ✅ Fetch all services with pagination (protected) - for regular users and admin
 export const getServices = createAsyncThunk(
   "services/getServices",
-  async (_, { getState }) => {
+  async (
+    { page = 1, limit = 6 }: { page?: number; limit?: number } = {},
+    { getState },
+  ) => {
     const state = getState() as any;
     const token = state.auth.token;
 
-    const response = await axios.get(`${API_BASE_URL}/api/services`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return normalizeServices(response.data);
-  }
+    const response = await axios.get(
+      `${API_BASE_URL}/api/services?page=${page}&limit=${limit}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+
+    // If the API returns paginated data
+    if (response.data?.services && response.data?.pagination) {
+      return response.data;
+    }
+
+    // Fallback for non-paginated response
+    return {
+      services: normalizeServices(response.data),
+      pagination: {
+        page,
+        limit,
+        total: response.data?.length || 0,
+        totalPages: Math.ceil((response.data?.length || 0) / limit),
+      },
+    };
+  },
 );
 
-// ✅ Fetch pending services (admin only)
+// ✅ Fetch ALL services for admin (no filters) - with pagination support
+export const getAllServices = createAsyncThunk(
+  "services/getAllServices",
+  async (
+    { page = 1, limit = 1000 }: { page?: number; limit?: number } = {},
+    { getState },
+  ) => {
+    const state = getState() as any;
+    const token = state.auth.token;
+
+    const response = await axios.get(
+      `${API_BASE_URL}/api/services/all?page=${page}&limit=${limit}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+
+    if (response.data?.services && response.data?.pagination) {
+      return response.data;
+    }
+
+    return {
+      services: normalizeServices(response.data),
+      pagination: {
+        page,
+        limit,
+        total: response.data?.length || 0,
+        totalPages: Math.ceil((response.data?.length || 0) / limit),
+      },
+    };
+  },
+);
+
+// ✅ Fetch pending services (admin only) - with pagination
 export const getPendingServices = createAsyncThunk(
   "services/getPendingServices",
-  async (_, { getState }) => {
+  async (
+    { page = 1, limit = 10 }: { page?: number; limit?: number } = {},
+    { getState },
+  ) => {
     const state = getState() as any;
     const token = state.auth.token;
 
-    const response = await axios.get(`${API_BASE_URL}/api/services/pending`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await axios.get(
+      `${API_BASE_URL}/api/services/pending?page=${page}&limit=${limit}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
 
-    return normalizeServices(response.data);
-  }
+    if (response.data?.services && response.data?.pagination) {
+      return response.data;
+    }
+
+    return {
+      services: normalizeServices(response.data),
+      pagination: {
+        page,
+        limit,
+        total: response.data?.length || 0,
+        totalPages: Math.ceil((response.data?.length || 0) / limit),
+      },
+    };
+  },
 );
 
-// ✅ Fetch services created by current user
+// ✅ Fetch services created by current user - with pagination
 export const getUserServices = createAsyncThunk(
   "services/getUserServices",
-  async (_, { getState }) => {
+  async (
+    { page = 1, limit = 6 }: { page?: number; limit?: number } = {},
+    { getState },
+  ) => {
     const state = getState() as any;
     const token = state.auth.token;
 
-    const response = await axios.get(`${API_BASE_URL}/api/services/user`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await axios.get(
+      `${API_BASE_URL}/api/services/user?page=${page}&limit=${limit}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
 
-    return normalizeServices(response.data);
-  }
+    if (response.data?.services && response.data?.pagination) {
+      return response.data;
+    }
+
+    return {
+      services: normalizeServices(response.data),
+      pagination: {
+        page,
+        limit,
+        total: response.data?.length || 0,
+        totalPages: Math.ceil((response.data?.length || 0) / limit),
+      },
+    };
+  },
 );
 
 // ✅ Fetch service count (PUBLIC – no token)
@@ -84,9 +199,8 @@ export const fetchServiceCount = createAsyncThunk(
   "services/fetchServiceCount",
   async () => {
     const response = await axios.get(`${API_BASE_URL}/api/services/count`);
-    // backend: { totalServices, approvedServices, pendingServices } etc.
     return response.data.totalServices || 0;
-  }
+  },
 );
 
 // ✅ Add new service
@@ -105,24 +219,48 @@ export const addService = createAsyncThunk(
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
-      return normalizeServices(response.data);
+      // After adding, fetch the first page to show the new item
+      const updatedResponse = await axios.get(
+        `${API_BASE_URL}/api/services?page=1&limit=6`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+
+      if (updatedResponse.data?.services && updatedResponse.data?.pagination) {
+        return updatedResponse.data;
+      }
+
+      return {
+        services: normalizeServices(updatedResponse.data),
+        pagination: {
+          page: 1,
+          limit: 6,
+          total: updatedResponse.data?.length || 0,
+          totalPages: Math.ceil((updatedResponse.data?.length || 0) / 6),
+        },
+      };
     } catch (err: any) {
       console.error("Backend error object:", err);
       console.error("Backend response:", err.response);
       return rejectWithValue(err.response?.data || "Failed to create service");
     }
-  }
+  },
 );
 
 // ✅ Edit a service
 export const editService = createAsyncThunk(
   "services/editService",
   async (
-    { id, serviceData }: { id: string; serviceData: FormData },
-    { getState }
+    {
+      id,
+      serviceData,
+      page = 1,
+    }: { id: string; serviceData: FormData; page?: number },
+    { getState },
   ) => {
     const state = getState() as any;
     const token = state.auth.token;
@@ -134,18 +272,34 @@ export const editService = createAsyncThunk(
       },
     });
 
-    const response = await axios.get(`${API_BASE_URL}/api/services`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    // After editing, fetch the current page
+    const response = await axios.get(
+      `${API_BASE_URL}/api/services?page=${page}&limit=6`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
 
-    return normalizeServices(response.data);
-  }
+    if (response.data?.services && response.data?.pagination) {
+      return response.data;
+    }
+
+    return {
+      services: normalizeServices(response.data),
+      pagination: {
+        page,
+        limit: 6,
+        total: response.data?.length || 0,
+        totalPages: Math.ceil((response.data?.length || 0) / 6),
+      },
+    };
+  },
 );
 
 // ✅ Remove a service
 export const removeService = createAsyncThunk(
   "services/removeService",
-  async (id: string, { getState }) => {
+  async ({ id, page = 1 }: { id: string; page?: number }, { getState }) => {
     const state = getState() as any;
     const token = state.auth.token;
 
@@ -153,18 +307,37 @@ export const removeService = createAsyncThunk(
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    const response = await axios.get(`${API_BASE_URL}/api/services`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    // After removing, fetch the current page
+    const response = await axios.get(
+      `${API_BASE_URL}/api/services?page=${page}&limit=6`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
 
-    return normalizeServices(response.data);
-  }
+    if (response.data?.services && response.data?.pagination) {
+      return response.data;
+    }
+
+    return {
+      services: normalizeServices(response.data),
+      pagination: {
+        page,
+        limit: 6,
+        total: response.data?.length || 0,
+        totalPages: Math.ceil((response.data?.length || 0) / 6),
+      },
+    };
+  },
 );
 
 // ✅ Approve/Decline service (admin only)
 export const updateServiceStatus = createAsyncThunk(
   "services/updateServiceStatus",
-  async ({ id, status }: { id: string; status: string }, { getState }) => {
+  async (
+    { id, status, page = 1 }: { id: string; status: string; page?: number },
+    { getState },
+  ) => {
     const state = getState() as any;
     const token = state.auth.token;
 
@@ -173,15 +346,31 @@ export const updateServiceStatus = createAsyncThunk(
       { status },
       {
         headers: { Authorization: `Bearer ${token}` },
-      }
+      },
     );
 
-    const response = await axios.get(`${API_BASE_URL}/api/services`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    // After updating status, fetch the current page
+    const response = await axios.get(
+      `${API_BASE_URL}/api/services?page=${page}&limit=6`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
 
-    return normalizeServices(response.data);
-  }
+    if (response.data?.services && response.data?.pagination) {
+      return response.data;
+    }
+
+    return {
+      services: normalizeServices(response.data),
+      pagination: {
+        page,
+        limit: 6,
+        total: response.data?.length || 0,
+        totalPages: Math.ceil((response.data?.length || 0) / 6),
+      },
+    };
+  },
 );
 
 const servicesSlice = createSlice({
@@ -190,49 +379,99 @@ const servicesSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // ✅ Get Services
+      // ✅ Get Services with pagination
       .addCase(getServices.pending, (state) => {
         state.loading = true;
       })
       .addCase(
         getServices.fulfilled,
-        (state, action: PayloadAction<ServiceType[]>) => {
+        (
+          state,
+          action: PayloadAction<{
+            services: ServiceType[];
+            pagination: PaginationType;
+          }>,
+        ) => {
           state.loading = false;
-          state.services = normalizeServices(action.payload);
-          state.serviceCount = state.services.length;
-        }
+          state.services = normalizeServices(action.payload.services);
+          state.serviceCount =
+            action.payload.pagination.total || state.services.length;
+          state.pagination = action.payload.pagination;
+        },
       )
       .addCase(getServices.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Failed to fetch services";
       })
 
-      // ✅ Get pending services
+      // ✅ Get All Services with pagination
+      .addCase(getAllServices.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(
+        getAllServices.fulfilled,
+        (
+          state,
+          action: PayloadAction<{
+            services: ServiceType[];
+            pagination: PaginationType;
+          }>,
+        ) => {
+          state.loading = false;
+          state.allServices = normalizeServices(action.payload.services);
+          state.serviceCount =
+            action.payload.pagination.total || state.allServices.length;
+          state.pagination = action.payload.pagination;
+          // Also update regular services for backward compatibility
+          state.services = state.allServices;
+        },
+      )
+      .addCase(getAllServices.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Failed to fetch all services";
+      })
+
+      // ✅ Get pending services with pagination
       .addCase(getPendingServices.pending, (state) => {
         state.loading = true;
       })
       .addCase(
         getPendingServices.fulfilled,
-        (state, action: PayloadAction<ServiceType[]>) => {
+        (
+          state,
+          action: PayloadAction<{
+            services: ServiceType[];
+            pagination: PaginationType;
+          }>,
+        ) => {
           state.loading = false;
-          state.pendingServices = action.payload;
-        }
+          state.pendingServices = normalizeServices(action.payload.services);
+          state.pagination = action.payload.pagination;
+        },
       )
       .addCase(getPendingServices.rejected, (state) => {
         state.loading = false;
       })
 
-      // ✅ Get User Services
+      // ✅ Get User Services with pagination
       .addCase(getUserServices.pending, (state) => {
         state.loading = true;
       })
       .addCase(
         getUserServices.fulfilled,
-        (state, action: PayloadAction<ServiceType[]>) => {
+        (
+          state,
+          action: PayloadAction<{
+            services: ServiceType[];
+            pagination: PaginationType;
+          }>,
+        ) => {
           state.loading = false;
-          state.services = normalizeServices(action.payload);
-          state.serviceCount = state.services.length;
-        }
+          state.services = normalizeServices(action.payload.services);
+          state.serviceCount =
+            action.payload.pagination.total || state.services.length;
+          state.pagination = action.payload.pagination;
+        },
       )
       .addCase(getUserServices.rejected, (state, action) => {
         state.loading = false;
@@ -244,43 +483,75 @@ const servicesSlice = createSlice({
         fetchServiceCount.fulfilled,
         (state, action: PayloadAction<number>) => {
           state.serviceCount = action.payload;
-        }
+        },
       )
 
       // ✅ Add Service
       .addCase(
         addService.fulfilled,
-        (state, action: PayloadAction<ServiceType[]>) => {
-          state.services = normalizeServices(action.payload);
-          state.serviceCount = state.services.length;
-        }
+        (
+          state,
+          action: PayloadAction<{
+            services: ServiceType[];
+            pagination: PaginationType;
+          }>,
+        ) => {
+          state.services = normalizeServices(action.payload.services);
+          state.serviceCount =
+            action.payload.pagination.total || state.services.length;
+          state.pagination = action.payload.pagination;
+        },
       )
 
       // ✅ Edit Service
       .addCase(
         editService.fulfilled,
-        (state, action: PayloadAction<ServiceType[]>) => {
-          state.services = normalizeServices(action.payload);
-          state.serviceCount = state.services.length;
-        }
+        (
+          state,
+          action: PayloadAction<{
+            services: ServiceType[];
+            pagination: PaginationType;
+          }>,
+        ) => {
+          state.services = normalizeServices(action.payload.services);
+          state.serviceCount =
+            action.payload.pagination.total || state.services.length;
+          state.pagination = action.payload.pagination;
+        },
       )
 
       // ✅ Remove Service
       .addCase(
         removeService.fulfilled,
-        (state, action: PayloadAction<ServiceType[]>) => {
-          state.services = normalizeServices(action.payload);
-          state.serviceCount = state.services.length;
-        }
+        (
+          state,
+          action: PayloadAction<{
+            services: ServiceType[];
+            pagination: PaginationType;
+          }>,
+        ) => {
+          state.services = normalizeServices(action.payload.services);
+          state.serviceCount =
+            action.payload.pagination.total || state.services.length;
+          state.pagination = action.payload.pagination;
+        },
       )
 
       // ✅ Approve/Decline Service
       .addCase(
         updateServiceStatus.fulfilled,
-        (state, action: PayloadAction<ServiceType[]>) => {
-          state.services = normalizeServices(action.payload);
-          state.serviceCount = state.services.length;
-        }
+        (
+          state,
+          action: PayloadAction<{
+            services: ServiceType[];
+            pagination: PaginationType;
+          }>,
+        ) => {
+          state.services = normalizeServices(action.payload.services);
+          state.serviceCount =
+            action.payload.pagination.total || state.services.length;
+          state.pagination = action.payload.pagination;
+        },
       );
   },
 });

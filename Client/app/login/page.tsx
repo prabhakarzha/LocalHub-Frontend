@@ -17,6 +17,11 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [mounted, setMounted] = useState(false); // ✅ Add this
+
+  useEffect(() => {
+    setMounted(true); // ✅ Client side mount hone ke baad true hoga
+  }, []);
 
   // Debug logs
   useEffect(() => {
@@ -81,7 +86,8 @@ export default function LoginPage() {
           Please sign in to continue
         </p>
 
-        {error && (
+        {/* ✅ Fix: Only show error after mount */}
+        {mounted && error && (
           <div className="mt-4 p-3 bg-red-500/20 border border-red-500 text-red-300 rounded-lg text-center">
             {error}
           </div>
@@ -135,7 +141,7 @@ export default function LoginPage() {
         </button>
 
         <p className="mt-6 text-center text-gray-300">
-          Don’t have an account?{" "}
+          Don't have an account?{" "}
           <Link
             href="/signup"
             className="text-pink-400 hover:underline font-medium"

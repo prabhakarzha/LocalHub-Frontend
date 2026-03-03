@@ -1,18 +1,13 @@
 import "./globals.css";
 import ScrollReset from "./components/ScrollReset";
 import LayoutWrapper from "./components/LayoutWrapper";
-import Providers from "@/redux/Providers";
-import { Inter } from "next/font/google"; // ✅ Google Font import
+import { Providers } from "@/redux/Providers";
 import { Montserrat } from "next/font/google";
 
-// ✅ Inter font initialize
-// const inter = Inter({
-//   subsets: ["latin"],
-//   weight: ["400", "500", "600", "700"],
-// });
 const montserrat = Montserrat({
   subsets: ["latin"],
   weight: ["400", "600", "700"],
+  display: "swap", // ✅ Add this for better font loading
 });
 
 export const metadata = {

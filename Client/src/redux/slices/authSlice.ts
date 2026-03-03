@@ -5,7 +5,7 @@ import axios from "axios";
 const API_URL =
   (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(
     /\/$/,
-    ""
+    "",
   ) + "/api/auth";
 
 // Types
@@ -22,6 +22,9 @@ interface AuthState {
   loading: boolean;
   error: string | null;
 }
+
+// ✅ EXPORT types for use in other files
+export type { UserType, AuthState };
 
 // Initial State
 const initialState: AuthState = {
@@ -51,7 +54,7 @@ export const registerUser = createAsyncThunk<
     };
   } catch (error: any) {
     return rejectWithValue(
-      error.response?.data?.message || "Registration failed"
+      error.response?.data?.message || "Registration failed",
     );
   }
 });
@@ -89,7 +92,7 @@ export const fetchProfile = createAsyncThunk<
     return res.data;
   } catch (error: any) {
     return rejectWithValue(
-      error.response?.data?.message || "Failed to fetch profile"
+      error.response?.data?.message || "Failed to fetch profile",
     );
   }
 });
@@ -141,7 +144,7 @@ const authSlice = createSlice({
         const { user, token } = action.payload;
         console.log(
           "✅ [authSlice] loginUser.fulfilled → user.role:",
-          user.role
+          user.role,
         ); // Debug
 
         state.user = user;

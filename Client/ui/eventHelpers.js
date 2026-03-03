@@ -1,81 +1,77 @@
-import React from "react";
+import React, { memo, useMemo } from "react";
 import { Edit, Trash2 } from "lucide-react";
 import ReactDOM from "react-dom";
 
 /* ----------------- Gradient Heading ------------------ */
-export const GradientHeading = ({ text, size = "3xl" }) => (
+export const GradientHeading = memo(({ text, size = "3xl" }) => (
   <h2
     className={`bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent font-bold text-${size}`}
   >
     {text}
   </h2>
-);
+));
+
+GradientHeading.displayName = "GradientHeading";
 
 /* ----------------- Primary Button ------------------ */
-export const PrimaryButton = ({
-  children,
-  onClick,
-  type = "button",
-  disabled = false,
-}) => (
-  <button
-    type={type}
-    onClick={onClick}
-    disabled={disabled}
-    className={`px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-md flex items-center gap-2 transition ${
-      disabled ? "opacity-60 cursor-not-allowed" : ""
-    }`}
-  >
-    {children}
-  </button>
+export const PrimaryButton = memo(
+  ({ children, onClick, type = "button", disabled = false }) => (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className={`px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-md flex items-center gap-2 transition ${
+        disabled ? "opacity-60 cursor-not-allowed" : ""
+      }`}
+    >
+      {children}
+    </button>
+  ),
 );
+
+PrimaryButton.displayName = "PrimaryButton";
 
 /* ----------------- Input Field ------------------ */
-export const InputField = ({
-  label,
-  type = "text",
-  value,
-  onChange,
-  placeholder,
-  required,
-}) => (
-  <div className="flex flex-col space-y-2 w-full">
-    <label className="font-medium text-gray-700">{label}</label>
-    <input
-      type={type}
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder}
-      required={required}
-      className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full bg-white text-gray-800 placeholder-gray-400"
-    />
-  </div>
+export const InputField = memo(
+  ({ label, type = "text", value, onChange, placeholder, required }) => (
+    <div className="flex flex-col space-y-2 w-full">
+      <label className="font-medium text-gray-700">{label}</label>
+      <input
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        required={required}
+        className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full bg-white text-gray-800 placeholder-gray-400"
+      />
+    </div>
+  ),
 );
 
+InputField.displayName = "InputField";
+
 /* ----------------- Select Field ------------------ */
-export const SelectField = ({
-  label,
-  value,
-  onChange,
-  options,
-  required = false,
-}) => (
-  <div className="flex flex-col space-y-2 w-full">
-    <label className="font-medium text-gray-700">{label}</label>
-    <select
-      value={value}
-      onChange={onChange}
-      required={required}
-      className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full bg-white text-gray-800"
-    >
-      {options.map((opt) => (
-        <option key={opt} value={opt}>
-          {opt}
-        </option>
-      ))}
-    </select>
-  </div>
+export const SelectField = memo(
+  ({ label, value, onChange, options, required = false }) => (
+    <div className="flex flex-col space-y-2 w-full">
+      <label className="font-medium text-gray-700">{label}</label>
+      <select
+        value={value}
+        onChange={onChange}
+        required={required}
+        className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full bg-white text-gray-800"
+      >
+        {options.map((opt) => (
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
+    </div>
+  ),
 );
+
+SelectField.displayName = "SelectField";
 
 /* ----------------- Modal Wrapper ------------------ */
 export const ModalWrapper = ({ onClose, title, children }) => {
@@ -92,12 +88,12 @@ export const ModalWrapper = ({ onClose, title, children }) => {
         {children}
       </div>
     </div>,
-    document.body
+    document.body,
   );
 };
 
 /* ----------------- Stat Card ------------------ */
-export const StatCard = ({ stat }) => (
+export const StatCard = memo(({ stat }) => (
   <div
     className={`p-4 sm:p-6 rounded-2xl shadow-lg text-white bg-gradient-to-r ${stat.gradient} flex flex-col items-center`}
   >
@@ -105,17 +101,118 @@ export const StatCard = ({ stat }) => (
     <p className="mt-2 text-base sm:text-lg text-center">{stat.title}</p>
     <h3 className="text-xl sm:text-2xl font-bold">{stat.value}</h3>
   </div>
-);
+));
 
-/* ----------------- Events Table ------------------ */
-export const EventsTable = ({ events, loading, handleEdit, handleDelete }) => {
-  const safeEvents = Array.isArray(events) ? events : [];
+StatCard.displayName = "StatCard";
+
+/* ----------------- Optimized Events Table Row (Memoized) ------------------ */
+const EventsTableRow = memo(({ event, index, handleEdit, handleDelete }) => {
+  // ✅ Memoize formatted date
+  const formattedDate = useMemo(() => {
+    if (!event.date) return "TBD";
+    try {
+      return new Date(event.date).toLocaleDateString();
+    } catch {
+      return event.date;
+    }
+  }, [event.date]);
 
   return (
-    <div className="overflow-x-auto">
-      {loading ? (
-        <p className="text-center text-gray-600 py-4">Loading events...</p>
-      ) : (
+    <tr className="border-t border-gray-200 hover:bg-gray-50">
+      <td className="py-3 px-4">{event.title}</td>
+      <td className="py-3 px-4">{formattedDate}</td>
+      <td className="py-3 px-4">{event.location || "N/A"}</td>
+      <td className="py-3 px-4">{event.price || "Free"}</td>
+      <td className="py-3 px-4">
+        {event.createdBy?.name ||
+          (event.status === "approved" ? "Admin" : "User")}
+      </td>
+      <td className="py-3 px-4">
+        <div className="flex justify-center gap-4">
+          <button
+            onClick={() => handleEdit(index)}
+            className="text-blue-500 hover:scale-110 transition"
+            aria-label="Edit event"
+          >
+            <Edit className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => handleDelete(index)}
+            className="text-red-500 hover:scale-110 transition"
+            aria-label="Delete event"
+          >
+            <Trash2 className="w-5 h-5" />
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+});
+
+EventsTableRow.displayName = "EventsTableRow";
+
+/* ----------------- Loading Skeleton for Table ------------------ */
+const TableSkeleton = () => (
+  <div className="overflow-x-auto">
+    <table className="w-full min-w-[600px] border-collapse">
+      <thead>
+        <tr className="bg-gray-100">
+          {["Title", "Date", "Location", "Price", "Created By", "Actions"].map(
+            (header) => (
+              <th key={header} className="py-3 px-4 text-left font-semibold">
+                {header}
+              </th>
+            ),
+          )}
+        </tr>
+      </thead>
+      <tbody>
+        {[1, 2, 3, 4, 5].map((i) => (
+          <tr key={i} className="border-t border-gray-200">
+            <td className="py-3 px-4">
+              <div className="h-5 bg-gray-200 rounded animate-pulse w-32"></div>
+            </td>
+            <td className="py-3 px-4">
+              <div className="h-5 bg-gray-200 rounded animate-pulse w-24"></div>
+            </td>
+            <td className="py-3 px-4">
+              <div className="h-5 bg-gray-200 rounded animate-pulse w-28"></div>
+            </td>
+            <td className="py-3 px-4">
+              <div className="h-5 bg-gray-200 rounded animate-pulse w-16"></div>
+            </td>
+            <td className="py-3 px-4">
+              <div className="h-5 bg-gray-200 rounded animate-pulse w-20"></div>
+            </td>
+            <td className="py-3 px-4">
+              <div className="flex justify-center gap-4">
+                <div className="w-5 h-5 bg-gray-200 rounded animate-pulse"></div>
+                <div className="w-5 h-5 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
+/* ----------------- Optimized Events Table ------------------ */
+export const EventsTable = memo(
+  ({ events, loading, handleEdit, handleDelete }) => {
+    // ✅ Memoize safe events array
+    const safeEvents = useMemo(
+      () => (Array.isArray(events) ? events : []),
+      [events],
+    );
+
+    // ✅ Show skeleton while loading
+    if (loading) {
+      return <TableSkeleton />;
+    }
+
+    return (
+      <div className="overflow-x-auto">
         <table className="w-full min-w-[600px] border-collapse text-gray-700">
           <thead>
             <tr className="bg-gray-100">
@@ -130,110 +227,100 @@ export const EventsTable = ({ events, loading, handleEdit, handleDelete }) => {
           <tbody>
             {safeEvents.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center py-4 text-gray-500">
-                  No events found.
+                <td colSpan={6} className="text-center py-8 text-gray-500">
+                  <div className="flex flex-col items-center gap-2">
+                    <span className="text-lg">📅</span>
+                    <p>No events found.</p>
+                  </div>
                 </td>
               </tr>
             ) : (
               safeEvents.map((event, idx) => (
-                <tr
+                <EventsTableRow
                   key={event._id || idx}
-                  className="border-t border-gray-200 hover:bg-gray-50"
-                >
-                  <td className="py-3 px-4">{event.title}</td>
-                  <td className="py-3 px-4">{event.date}</td>
-                  <td className="py-3 px-4">{event.location}</td>
-                  <td className="py-3 px-4">{event.price || "Free"}</td>
-                  <td className="py-3 px-4">
-                    {event.createdBy?.name ||
-                      (event.status === "approved" ? "Admin" : "User")}
-                  </td>
-                  <td className="py-3 px-4 flex justify-center gap-4">
-                    <button
-                      onClick={() => handleEdit(idx)}
-                      className="text-blue-500 hover:scale-110 transition"
-                    >
-                      <Edit className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(idx)}
-                      className="text-red-500 hover:scale-110 transition"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
-                  </td>
-                </tr>
+                  event={event}
+                  index={idx}
+                  handleEdit={handleEdit}
+                  handleDelete={handleDelete}
+                />
               ))
             )}
           </tbody>
         </table>
-      )}
-    </div>
-  );
-};
+      </div>
+    );
+  },
+);
+
+EventsTable.displayName = "EventsTable";
 
 /* ----------------- Event Form ------------------ */
-export const EventForm = ({
-  formData,
-  setFormData,
-  onSubmit,
-  editIndex,
-  PrimaryButton,
-  InputField,
-  saving,
-}) => (
-  <form onSubmit={onSubmit} className="flex flex-col space-y-5 w-full">
-    <InputField
-      label="Event Title"
-      type="text"
-      value={formData.title}
-      placeholder="e.g. Yoga Class"
-      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-      required
-    />
-    <InputField
-      label="Event Date"
-      type="date"
-      value={formData.date}
-      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-      required
-    />
-    <InputField
-      label="Location"
-      type="text"
-      value={formData.location}
-      placeholder="e.g. Community Center"
-      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-      required
-    />
-    <InputField
-      label="Price (Optional)"
-      type="text"
-      value={formData.price}
-      placeholder="₹500 / Free"
-      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-    />
-
-    {/* File input */}
-    <div className="flex flex-col space-y-2 w-full">
-      <label className="font-medium text-gray-700">Event Image</label>
-      <input
-        type="file"
-        onChange={(e) =>
-          setFormData({ ...formData, image: e.target.files?.[0] || null })
-        }
-        className="border border-gray-300 rounded-lg p-2 bg-white text-gray-800"
+export const EventForm = memo(
+  ({
+    formData,
+    setFormData,
+    onSubmit,
+    editIndex,
+    PrimaryButton,
+    InputField,
+    saving,
+  }) => (
+    <form onSubmit={onSubmit} className="flex flex-col space-y-5 w-full">
+      <InputField
+        label="Event Title"
+        type="text"
+        value={formData.title}
+        placeholder="e.g. Yoga Class"
+        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+        required
       />
-    </div>
+      <InputField
+        label="Event Date"
+        type="date"
+        value={formData.date}
+        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+        required
+      />
+      <InputField
+        label="Location"
+        type="text"
+        value={formData.location}
+        placeholder="e.g. Community Center"
+        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+        required
+      />
+      <InputField
+        label="Price (Optional)"
+        type="text"
+        value={formData.price}
+        placeholder="₹500 / Free"
+        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+      />
 
-    <div className="flex justify-end">
-      <PrimaryButton type="submit" disabled={saving}>
-        {saving
-          ? "Saving..."
-          : editIndex !== null
-          ? "Update Event"
-          : "Save Event"}
-      </PrimaryButton>
-    </div>
-  </form>
+      {/* File input */}
+      <div className="flex flex-col space-y-2 w-full">
+        <label className="font-medium text-gray-700">Event Image</label>
+        <input
+          type="file"
+          onChange={(e) =>
+            setFormData({ ...formData, image: e.target.files?.[0] || null })
+          }
+          className="border border-gray-300 rounded-lg p-2 bg-white text-gray-800"
+          accept="image/*"
+        />
+      </div>
+
+      <div className="flex justify-end">
+        <PrimaryButton type="submit" disabled={saving}>
+          {saving
+            ? "Saving..."
+            : editIndex !== null
+              ? "Update Event"
+              : "Save Event"}
+        </PrimaryButton>
+      </div>
+    </form>
+  ),
 );
+
+EventForm.displayName = "EventForm";
