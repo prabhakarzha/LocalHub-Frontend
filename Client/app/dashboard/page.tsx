@@ -242,11 +242,24 @@ export default function DashboardPage() {
   const userId = user?._id as string | undefined;
 
   // Initial fetch - only when reducers are loaded
+  // Initial fetch - only when reducers are loaded
   useEffect(() => {
     if (!token || !userId) return;
+
     if (reducersLoaded.events) dispatch(getUserEvents() as any);
-    if (reducersLoaded.services) dispatch(getUserServices() as any);
+
+    // ✅ Fix: Add pagination params
+    if (reducersLoaded.services) {
+      dispatch(
+        getUserServices({
+          page: 1,
+          limit: 100,
+        }) as any,
+      );
+    }
+
     if (reducersLoaded.bookings) reduxDispatch(getBookings() as any);
+
     if (reducersLoaded.serviceBookings) {
       reduxDispatch(fetchServiceBookings() as any)
         .unwrap()
@@ -260,11 +273,20 @@ export default function DashboardPage() {
   }, [token, user, reduxDispatch]);
 
   // Re-fetch when tab gets focus
+  // Re-fetch when tab gets focus
   useEffect(() => {
     const onFocus = () => {
       if (token && userId) {
         if (reducersLoaded.events) dispatch(getUserEvents() as any);
-        if (reducersLoaded.services) dispatch(getUserServices() as any);
+        if (reducersLoaded.services) {
+          // ✅ Pass object with pagination params
+          dispatch(
+            getUserServices({
+              page: 1,
+              limit: 100,
+            }) as any,
+          );
+        }
       }
     };
     window.addEventListener("focus", onFocus);
@@ -925,7 +947,14 @@ export default function DashboardPage() {
                 const d = await res.json();
                 throw new Error(d.message || "Failed to add service");
               }
-              dispatch(getUserServices() as any);
+              // ✅ Fix: Add pagination params
+              dispatch(
+                getUserServices({
+                  page: 1,
+                  limit: 100,
+                }) as any,
+              );
+
               setSuccessMessage("Service Added Successfully!");
               setShowSuccess(true);
             } catch (err: any) {

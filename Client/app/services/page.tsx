@@ -52,13 +52,15 @@ export default function ServicesPage() {
   );
 
   // ✅ FIX 3: Load services only after mounted
+  // ✅ FIX 3: Load services only after mounted
   useEffect(() => {
     if (!mounted) return;
 
     const loadServices = async () => {
       try {
         setFetchError(null);
-        await dispatch(getServices() as any);
+        // ✅ FIXED: Add pagination parameters
+        await dispatch(getServices({ page: 1, limit: 10 }) as any);
       } catch (error: any) {
         console.error("Failed to fetch services:", error);
         setFetchError(error?.message || "Failed to load services");

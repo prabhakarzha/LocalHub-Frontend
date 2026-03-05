@@ -92,14 +92,17 @@ export default function UserServicesPage() {
   );
   const [saving, setSaving] = useState(false);
 
+  // ✅ DEFAULT PAGINATION - Add this constant
+  const DEFAULT_PAGINATION = { page: 1, limit: 10 };
+
   // Lazy load services reducer when component mounts
   useEffect(() => {
     const loadServices = async () => {
       try {
         await loadServicesReducer();
         setIsReducerLoaded(true);
-        // Fetch services after reducer is loaded
-        dispatch(getServices() as any);
+        // ✅ FIXED: Add pagination parameters
+        dispatch(getServices(DEFAULT_PAGINATION) as any);
       } catch (error) {
         console.error("Failed to load services reducer:", error);
       }
@@ -127,7 +130,10 @@ export default function UserServicesPage() {
 
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this service?")) {
-      await dispatch(removeService(id) as any);
+      // ✅ FIXED: Pass object with id
+      await dispatch(removeService({ id }) as any);
+      // Refresh after delete with pagination
+      dispatch(getServices(DEFAULT_PAGINATION) as any);
     }
   };
 
@@ -148,8 +154,8 @@ export default function UserServicesPage() {
         await dispatch(addService(formData) as any);
       }
 
-      // Refresh services after save
-      dispatch(getServices() as any);
+      // ✅ FIXED: Refresh services after save with pagination
+      dispatch(getServices(DEFAULT_PAGINATION) as any);
 
       setShowModal(false);
       setEditServiceData(null);

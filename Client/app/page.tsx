@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useAppDispatch, useAppSelector } from "@/src/redux/hooks";
-import { MapPin } from "lucide-react";
+import { MapPin, Calendar, Users, Star, ArrowRight, Mail } from "lucide-react"; // ✅ Direct import - no lazy loading needed
 // ✅ Import lazy loaders
 import {
   loadUsersReducer,
@@ -21,25 +21,14 @@ const LoginPopup = lazy(() => import("@/app/components/HomePage/LoginPopup"));
 const FloatingDots = lazy(
   () => import("@/app/components/HomePage/FloatingDots"),
 );
-
-// Lazy load icons
-const Calendar = lazy(() =>
-  import("lucide-react").then((mod) => ({ default: mod.Calendar })),
+const TestimonialCard = lazy(
+  () => import("@/app/components/HomePage/TestimonialCard"),
 );
-const Users = lazy(() =>
-  import("lucide-react").then((mod) => ({ default: mod.Users })),
-);
-const Star = lazy(() =>
-  import("lucide-react").then((mod) => ({ default: mod.Star })),
-);
-const ArrowRight = lazy(() =>
-  import("lucide-react").then((mod) => ({ default: mod.ArrowRight })),
+const NewsletterSection = lazy(
+  () => import("@/app/components/HomePage/NewsletterSection"),
 );
 
 // Loading fallbacks
-const IconFallback = () => (
-  <div className="w-5 h-5 bg-gray-700 rounded animate-pulse" />
-);
 const CardFallback = () => (
   <div className="h-64 bg-white/5 rounded-2xl animate-pulse" />
 );
@@ -68,20 +57,64 @@ const features = [
   },
 ];
 
+// ✅ New: Testimonials data
+const testimonials = [
+  {
+    name: "Priya S.",
+    role: "Event Organizer",
+    text: "LocalHub helped me find 50+ attendees for my community workshop! The response was overwhelming.",
+    rating: 5,
+    image: "/images/testimonials/priya.jpeg",
+  },
+  {
+    name: "Rahul M.",
+    role: "Tutor",
+    text: "I've connected with 20+ students through LocalHub. It's the best platform for local services.",
+    rating: 5,
+    image: "/images/testimonials/rahul.jpeg",
+  },
+  {
+    name: "Anita K.",
+    role: "Community Member",
+    text: "Found amazing garage sales and met wonderful neighbors. This platform brings people together!",
+    rating: 5,
+    image: "/images/testimonials/anita.jpeg",
+  },
+];
+
+// ✅ New: How it works steps
+const steps = [
+  {
+    title: "Create Account",
+    desc: "Sign up in 30 seconds - it's free!",
+    icon: "UserPlus",
+    color: "from-blue-400 to-purple-400",
+  },
+  {
+    title: "Explore",
+    desc: "Discover events & services near you",
+    icon: "Compass",
+    color: "from-purple-400 to-pink-400",
+  },
+  {
+    title: "Connect",
+    desc: "RSVP, book services & engage",
+    icon: "Handshake",
+    color: "from-pink-400 to-blue-400",
+  },
+];
+
 export default function HomePage() {
   const token = useAppSelector((state) => state.auth?.token);
   const [showPopup, setShowPopup] = useState(false);
-  const [initialLoad, setInitialLoad] = useState(true);
-  const [reducersLoaded, setReducersLoaded] = useState(false); // ✅ Track reducer loading
+  const [reducersLoaded, setReducersLoaded] = useState(false); // ✅ Only one loading state
   const dispatch = useAppDispatch();
 
   // ✅ Load all required reducers first
   useEffect(() => {
     const loadAllReducers = async () => {
       try {
-        // Load users reducer first (needed for user count)
         await loadUsersReducer();
-        // Then load events and services reducers
         await Promise.all([loadEventsReducer(), loadServicesReducer()]);
         setReducersLoaded(true);
       } catch (error) {
@@ -101,22 +134,14 @@ export default function HomePage() {
   );
   const totalCount = eventCount + serviceCount;
 
-  // Optimize API calls with prioritization
+  // ✅ Simplified API calls - no timer needed
   useEffect(() => {
-    if (!reducersLoaded) return; // ✅ Wait for reducers to load first
+    if (!reducersLoaded) return;
 
-    // Load critical data first
     dispatch(fetchUserCount() as any);
-
-    // Load secondary data after a small delay
-    const timer = setTimeout(() => {
-      dispatch(fetchEventCount() as any);
-      dispatch(fetchServiceCount() as any);
-      setInitialLoad(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [dispatch, reducersLoaded]); // ✅ Add reducersLoaded as dependency
+    dispatch(fetchEventCount() as any);
+    dispatch(fetchServiceCount() as any);
+  }, [dispatch, reducersLoaded]);
 
   const handleExploreClick = (e: React.MouseEvent, route: string) => {
     if (!token) {
@@ -137,7 +162,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Background Effects - Lazy load heavy animations */}
+      {/* Background Effects */}
       <Suspense fallback={null}>
         <FloatingDots count={20} />
       </Suspense>
@@ -149,7 +174,7 @@ export default function HomePage() {
       </div>
 
       <div className="relative z-10">
-        {/* Hero Section - Only animate visible content */}
+        {/* Hero Section */}
         <section className="flex flex-col items-center justify-center min-h-screen px-6 text-center">
           <Suspense fallback={<div className="h-96 animate-pulse" />}>
             <MotionDiv
@@ -171,12 +196,12 @@ export default function HomePage() {
                 Events. Services. Community. All in one place.
               </p>
 
-              <div className="flex items-center justify-center gap-2 text-gray-400 mb-12">
+              <div className="flex items-center justify-center gap-2 text-gray-400 mb-8">
                 <MapPin className="w-5 h-5 text-purple-400" />
                 <span>Connecting communities worldwide</span>
               </div>
 
-              {/* CTA buttons - Critical, don't lazy load */}
+              {/* CTA buttons */}
               <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-center justify-center w-full px-4">
                 <Link
                   href={features[0].route}
@@ -184,13 +209,9 @@ export default function HomePage() {
                   prefetch={false}
                   className="group relative w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white rounded-xl sm:rounded-2xl font-semibold shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 hover:scale-105 flex items-center justify-center gap-3 text-sm sm:text-base"
                 >
-                  <Suspense fallback={<IconFallback />}>
-                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </Suspense>
+                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span>Explore Events</span>
-                  <Suspense fallback={<IconFallback />}>
-                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-                  </Suspense>
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
 
                 <Link
@@ -198,14 +219,12 @@ export default function HomePage() {
                   href="/signup"
                   className="group w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-white/10 backdrop-blur-lg border border-white/20 text-white rounded-xl sm:rounded-2xl font-semibold hover:bg-white/20 transition-all duration-300 hover:scale-105 flex items-center justify-center gap-3 text-sm sm:text-base"
                 >
-                  <Suspense fallback={<IconFallback />}>
-                    <Users className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </Suspense>
+                  <Users className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span>Join Community</span>
                 </Link>
               </div>
 
-              {/* Stats - Load progressively */}
+              {/* Stats */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-12 sm:mt-16 px-4 sm:px-0">
                 <div className="text-center">
                   <div className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
@@ -221,10 +240,10 @@ export default function HomePage() {
                 </div>
                 <div className="text-center">
                   <div className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                    {initialLoad ? (
-                      <span className="animate-pulse">...</span>
-                    ) : (
+                    {totalCount ? (
                       `${totalCount}+`
+                    ) : (
+                      <span className="animate-pulse">...</span>
                     )}
                   </div>
                   <div className="text-gray-400 text-sm sm:text-base">
@@ -244,7 +263,51 @@ export default function HomePage() {
           </Suspense>
         </section>
 
-        {/* Features Section - Lazy load when in viewport */}
+        {/* ✅ NEW: How It Works Section */}
+        <section className="container mx-auto py-16 px-6">
+          <Suspense fallback={<div className="h-64 animate-pulse" />}>
+            <MotionDiv
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true, margin: "100px" }}
+              className="text-center mb-12"
+            >
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                How It Works
+              </h2>
+              <p className="text-gray-300 max-w-2xl mx-auto">
+                Get started in three simple steps
+              </p>
+            </MotionDiv>
+          </Suspense>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {steps.map((step, index) => (
+              <Suspense key={index} fallback={<CardFallback />}>
+                <MotionDiv
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="text-center p-6"
+                >
+                  <div
+                    className={`w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r ${step.color} flex items-center justify-center`}
+                  >
+                    <span className="text-2xl text-white">{index + 1}</span>
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-2">
+                    {step.title}
+                  </h3>
+                  <p className="text-gray-400">{step.desc}</p>
+                </MotionDiv>
+              </Suspense>
+            ))}
+          </div>
+        </section>
+
+        {/* Features Section */}
         <section className="container mx-auto py-20 px-6">
           <Suspense fallback={<div className="h-96 animate-pulse" />}>
             <MotionDiv
@@ -277,7 +340,42 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Login Popup - Load only when needed */}
+        {/* ✅ NEW: Testimonials Section */}
+        <section className="container mx-auto py-16 px-6">
+          <Suspense fallback={<div className="h-64 animate-pulse" />}>
+            <MotionDiv
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true, margin: "100px" }}
+              className="text-center mb-12"
+            >
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                What Our Community Says
+              </h2>
+              <p className="text-gray-300 max-w-2xl mx-auto">
+                Join thousands of satisfied users
+              </p>
+            </MotionDiv>
+          </Suspense>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {testimonials.map((testimonial, index) => (
+              <Suspense key={index} fallback={<CardFallback />}>
+                <TestimonialCard testimonial={testimonial} index={index} />
+              </Suspense>
+            ))}
+          </div>
+        </section>
+
+        {/* ✅ NEW: Newsletter Section */}
+        <section className="container mx-auto py-16 px-6">
+          <Suspense fallback={<div className="h-48 animate-pulse" />}>
+            <NewsletterSection />
+          </Suspense>
+        </section>
+
+        {/* Login Popup */}
         {showPopup && (
           <Suspense fallback={null}>
             <LoginPopup onClose={() => setShowPopup(false)} />
