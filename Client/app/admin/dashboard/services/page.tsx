@@ -172,7 +172,7 @@ export default function ServicesPage() {
       }
 
       if (isEdit && serviceId) {
-        await axios.put(`${API_BASE_URL}/api/services/${serviceId}`, formData, {
+        await axios.put(`${API_BASE_URL}/services/${serviceId}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,
@@ -183,7 +183,7 @@ export default function ServicesPage() {
           getServices({ page: currentPage, limit: itemsPerPage }) as any,
         );
       } else {
-        await axios.post(`${API_BASE_URL}/api/services`, formData, {
+        await axios.post(`${API_BASE_URL}/services`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,
