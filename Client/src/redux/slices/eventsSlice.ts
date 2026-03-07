@@ -2,7 +2,10 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { bookEvent } from "./bookingsSlice";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+// const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 // ✅ Normalize events utility
 const normalizeEvents = (data: any) => {
@@ -21,7 +24,7 @@ export const getEvents = createAsyncThunk(
     const token = state.auth.token;
 
     const response = await axios.get(
-      `${API_BASE_URL}/api/events?page=${page}&limit=${limit}`,
+      `${API_BASE_URL}/events?page=${page}&limit=${limit}`,
       {
         headers: { Authorization: `Bearer ${token}` },
       },
@@ -38,12 +41,9 @@ export const getAllEvents = createAsyncThunk(
     const state = getState() as any;
     const token = state.auth.token;
 
-    const response = await axios.get(
-      `${API_BASE_URL}/api/events/all?limit=1000`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    );
+    const response = await axios.get(`${API_BASE_URL}/events/all?limit=1000`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
     return response.data;
   },
@@ -53,7 +53,7 @@ export const getAllEvents = createAsyncThunk(
 export const fetchEventCount = createAsyncThunk(
   "events/fetchEventCount",
   async () => {
-    const response = await axios.get(`${API_BASE_URL}/api/events/count`);
+    const response = await axios.get(`${API_BASE_URL}/events/count`);
     return response.data.totalEvents || 0;
   },
 );
@@ -65,12 +65,9 @@ export const getUserEvents = createAsyncThunk(
     const state = getState() as any;
     const token = state.auth.token;
 
-    const response = await axios.get(
-      `${API_BASE_URL}/api/events/user?limit=100`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    );
+    const response = await axios.get(`${API_BASE_URL}/events/user?limit=100`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
     return normalizeEvents(response.data);
   },
@@ -83,14 +80,14 @@ export const addEvent = createAsyncThunk(
     const state = getState() as any;
     const token = state.auth.token;
 
-    await axios.post(`${API_BASE_URL}/api/events`, eventData, {
+    await axios.post(`${API_BASE_URL}/events`, eventData, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "multipart/form-data",
       },
     });
 
-    const response = await axios.get(`${API_BASE_URL}/api/events`, {
+    const response = await axios.get(`${API_BASE_URL}/events`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -111,7 +108,7 @@ export const updateEventStatus = createAsyncThunk(
       { headers: { Authorization: `Bearer ${token}` } },
     );
 
-    const updatedList = await axios.get(`${API_BASE_URL}/api/events`, {
+    const updatedList = await axios.get(`${API_BASE_URL}/events`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -135,7 +132,7 @@ export const editEvent = createAsyncThunk<
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const updatedList = await axios.get(`${API_BASE_URL}/api/events`, {
+      const updatedList = await axios.get(`${API_BASE_URL}/events`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -160,7 +157,7 @@ export const removeEvent = createAsyncThunk<
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    const updatedList = await axios.get(`${API_BASE_URL}/api/events`, {
+    const updatedList = await axios.get(`${API_BASE_URL}/events`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 

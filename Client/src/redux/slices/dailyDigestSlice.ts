@@ -2,7 +2,9 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { RootState } from "../store"; // Make sure path is correct
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+// const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 // ✅ Async thunk to fetch daily digest
 export const fetchDailyDigest = createAsyncThunk(
@@ -11,11 +13,11 @@ export const fetchDailyDigest = createAsyncThunk(
     const state = getState() as RootState;
     const token = state.auth.token;
 
-    const response = await axios.get(`${API_BASE_URL}/api/daily-digest`, {
+    const response = await axios.get(`${API_BASE_URL}/daily-digest`, {
       headers: { Authorization: `Bearer ${token}` }, // private route
     });
     return response.data;
-  }
+  },
 );
 
 // ✅ Slice type
@@ -47,7 +49,7 @@ const digestSlice = createSlice({
         (state, action: PayloadAction<any>) => {
           state.loading = false;
           state.data = action.payload;
-        }
+        },
       )
       .addCase(fetchDailyDigest.rejected, (state, action) => {
         state.loading = false;

@@ -31,7 +31,9 @@ const AddServiceModal = lazy(
   () => import("@/app/components/shared/AddServiceModal"),
 );
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+// const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 // ✅ Service type
 export type ServiceType = {

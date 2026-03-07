@@ -237,8 +237,10 @@ export default function DashboardPage() {
     }
   }, [userEvents]);
 
+  // const API_BASE_URL =
+  //   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
   const API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
   const userId = user?._id as string | undefined;
 
   // Initial fetch - only when reducers are loaded
@@ -909,7 +911,7 @@ export default function DashboardPage() {
                 alert("You must be logged in to create an event!");
                 return;
               }
-              const res = await fetch(`${API_BASE_URL}/api/events`, {
+              const res = await fetch(`${API_BASE_URL}/events`, {
                 method: "POST",
                 body: formData,
                 headers: { Authorization: `Bearer ${token}` },
@@ -938,7 +940,7 @@ export default function DashboardPage() {
                 alert("You must be logged in to add a service!");
                 return;
               }
-              const res = await fetch(`${API_BASE_URL}/api/services`, {
+              const res = await fetch(`${API_BASE_URL}/services`, {
                 method: "POST",
                 body: formData,
                 headers: { Authorization: `Bearer ${token}` },

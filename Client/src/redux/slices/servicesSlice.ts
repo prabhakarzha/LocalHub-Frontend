@@ -1,7 +1,10 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+// const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 // ✅ Normalize services utility
 const normalizeServices = (data: any) => {
@@ -71,7 +74,7 @@ export const getServices = createAsyncThunk(
     const token = state.auth.token;
 
     const response = await axios.get(
-      `${API_BASE_URL}/api/services?page=${page}&limit=${limit}`,
+      `${API_BASE_URL}/services?page=${page}&limit=${limit}`,
       {
         headers: { Authorization: `Bearer ${token}` },
       },
@@ -106,7 +109,7 @@ export const getAllServices = createAsyncThunk(
     const token = state.auth.token;
 
     const response = await axios.get(
-      `${API_BASE_URL}/api/services/all?page=${page}&limit=${limit}`,
+      `${API_BASE_URL}/services/all?page=${page}&limit=${limit}`,
       {
         headers: { Authorization: `Bearer ${token}` },
       },
@@ -139,7 +142,7 @@ export const getPendingServices = createAsyncThunk(
     const token = state.auth.token;
 
     const response = await axios.get(
-      `${API_BASE_URL}/api/services/pending?page=${page}&limit=${limit}`,
+      `${API_BASE_URL}/services/pending?page=${page}&limit=${limit}`,
       {
         headers: { Authorization: `Bearer ${token}` },
       },
@@ -172,7 +175,7 @@ export const getUserServices = createAsyncThunk(
     const token = state.auth.token;
 
     const response = await axios.get(
-      `${API_BASE_URL}/api/services/user?page=${page}&limit=${limit}`,
+      `${API_BASE_URL}/services/user?page=${page}&limit=${limit}`,
       {
         headers: { Authorization: `Bearer ${token}` },
       },
@@ -198,7 +201,7 @@ export const getUserServices = createAsyncThunk(
 export const fetchServiceCount = createAsyncThunk(
   "services/fetchServiceCount",
   async () => {
-    const response = await axios.get(`${API_BASE_URL}/api/services/count`);
+    const response = await axios.get(`${API_BASE_URL}/services/count`);
     return response.data.totalServices || 0;
   },
 );
@@ -212,7 +215,7 @@ export const addService = createAsyncThunk(
       const token = state.auth.token;
 
       const response = await axios.post(
-        `${API_BASE_URL}/api/services`,
+        `${API_BASE_URL}/services`,
         serviceData,
         {
           headers: {
@@ -224,7 +227,7 @@ export const addService = createAsyncThunk(
 
       // After adding, fetch the first page to show the new item
       const updatedResponse = await axios.get(
-        `${API_BASE_URL}/api/services?page=1&limit=6`,
+        `${API_BASE_URL}/services?page=1&limit=6`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -265,7 +268,7 @@ export const editService = createAsyncThunk(
     const state = getState() as any;
     const token = state.auth.token;
 
-    await axios.put(`${API_BASE_URL}/api/services/${id}`, serviceData, {
+    await axios.put(`${API_BASE_URL}/services/${id}`, serviceData, {
       headers: {
         "Content-Type": "multipart/form-data",
         Authorization: `Bearer ${token}`,
@@ -274,7 +277,7 @@ export const editService = createAsyncThunk(
 
     // After editing, fetch the current page
     const response = await axios.get(
-      `${API_BASE_URL}/api/services?page=${page}&limit=6`,
+      `${API_BASE_URL}/services?page=${page}&limit=6`,
       {
         headers: { Authorization: `Bearer ${token}` },
       },
@@ -303,13 +306,13 @@ export const removeService = createAsyncThunk(
     const state = getState() as any;
     const token = state.auth.token;
 
-    await axios.delete(`${API_BASE_URL}/api/services/${id}`, {
+    await axios.delete(`${API_BASE_URL}/services/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
     // After removing, fetch the current page
     const response = await axios.get(
-      `${API_BASE_URL}/api/services?page=${page}&limit=6`,
+      `${API_BASE_URL}/services?page=${page}&limit=6`,
       {
         headers: { Authorization: `Bearer ${token}` },
       },
@@ -342,7 +345,7 @@ export const updateServiceStatus = createAsyncThunk(
     const token = state.auth.token;
 
     await axios.patch(
-      `${API_BASE_URL}/api/services/${id}/status`,
+      `${API_BASE_URL}/services/${id}/status`,
       { status },
       {
         headers: { Authorization: `Bearer ${token}` },
@@ -351,7 +354,7 @@ export const updateServiceStatus = createAsyncThunk(
 
     // After updating status, fetch the current page
     const response = await axios.get(
-      `${API_BASE_URL}/api/services?page=${page}&limit=6`,
+      `${API_BASE_URL}/services?page=${page}&limit=6`,
       {
         headers: { Authorization: `Bearer ${token}` },
       },

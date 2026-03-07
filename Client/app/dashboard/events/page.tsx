@@ -59,8 +59,11 @@ export default function UserEvents() {
   const [editEventData, setEditEventData] = useState<EventType | null>(null);
   const [isReducerLoaded, setIsReducerLoaded] = useState(false);
 
+  // const API_BASE_URL =
+  //   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
   const API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
   const formatDateForInput = (isoDate?: string) => isoDate?.split("T")[0] || "";
 
@@ -95,7 +98,7 @@ export default function UserEvents() {
       }
 
       if (isEdit && eventId) {
-        await axios.put(`${API_BASE_URL}/api/events/${eventId}`, formData, {
+        await axios.put(`${API_BASE_URL}/events/${eventId}`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
@@ -103,7 +106,7 @@ export default function UserEvents() {
         });
         alert("Event updated successfully!");
       } else {
-        await axios.post(`${API_BASE_URL}/api/events`, formData, {
+        await axios.post(`${API_BASE_URL}/events`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",

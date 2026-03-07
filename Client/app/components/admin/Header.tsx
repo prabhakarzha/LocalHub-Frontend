@@ -33,8 +33,10 @@ export function Header({
 }: HeaderProps) {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  // const API_BASE_URL =
+  //   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
   const API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
   const [pendingEvents, setPendingEvents] = useState<any[]>([]);
   const [pendingServices, setPendingServices] = useState<any[]>([]);
@@ -61,13 +63,13 @@ export function Header({
         const cleanToken = token.startsWith("Bearer ") ? token.slice(7) : token;
 
         const [eventsRes, servicesRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/api/events/pending`, {
+          axios.get(`${API_BASE_URL}/events/pending`, {
             headers: {
               Authorization: `Bearer ${cleanToken}`,
               "Content-Type": "application/json",
             },
           }),
-          axios.get(`${API_BASE_URL}/api/services/pending`, {
+          axios.get(`${API_BASE_URL}/services/pending`, {
             headers: {
               Authorization: `Bearer ${cleanToken}`,
               "Content-Type": "application/json",
@@ -126,7 +128,7 @@ export function Header({
       const cleanToken = token.startsWith("Bearer ") ? token.slice(7) : token;
 
       await axios.patch(
-        `${API_BASE_URL}/api/${type}s/${id}/status`,
+        `${API_BASE_URL}/${type}s/${id}/status`,
         { status: "approved" },
         {
           headers: {
@@ -167,7 +169,7 @@ export function Header({
       const cleanToken = token.startsWith("Bearer ") ? token.slice(7) : token;
 
       await axios.patch(
-        `${API_BASE_URL}/api/${type}s/${id}/status`,
+        `${API_BASE_URL}/${type}s/${id}/status`,
         { status: "declined" },
         {
           headers: {

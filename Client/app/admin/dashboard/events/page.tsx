@@ -30,7 +30,9 @@ const EventsTable = EventsTableComponent as any;
 const AddEventModal = lazy(
   () => import("@/app/components/shared/AddEventModal"),
 );
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+// const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 // ✅ Button props
 type PrimaryButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -159,7 +161,7 @@ export default function EventsPage() {
       }
 
       if (isEdit && eventId) {
-        await axios.put(`${API_BASE_URL}/api/events/${eventId}`, formData, {
+        await axios.put(`${API_BASE_URL}/events/${eventId}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,
@@ -168,7 +170,7 @@ export default function EventsPage() {
         // Stay on current page after edit
         dispatch(getEvents({ page: currentPage, limit: itemsPerPage }) as any);
       } else {
-        await axios.post(`${API_BASE_URL}/api/events`, formData, {
+        await axios.post(`${API_BASE_URL}/events`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,
