@@ -29,8 +29,8 @@ interface ServiceBookingState {
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL
-  ? `${process.env.NEXT_PUBLIC_API_URL}/api/servicebookings`
-  : "http://localhost:5000/api/servicebookings";
+  ? `${process.env.NEXT_PUBLIC_API_URL}/servicebookings`
+  : "http://localhost:5000/servicebookings";
 
 //
 // ✅ Async Thunks
@@ -45,7 +45,7 @@ export const bookService = createAsyncThunk<
   "servicebookings/bookService",
   async (
     { serviceId, message, contactInfo },
-    { rejectWithValue, getState }
+    { rejectWithValue, getState },
   ) => {
     try {
       const token =
@@ -59,17 +59,17 @@ export const bookService = createAsyncThunk<
       const res = await axios.post(
         API_URL,
         { serviceId, message, contactInfo },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       return res.data.booking as ServiceBooking;
     } catch (error: any) {
       console.error("Booking Error:", error.response?.data || error.message);
       return rejectWithValue(
-        error.response?.data?.message || "Failed to book service"
+        error.response?.data?.message || "Failed to book service",
       );
     }
-  }
+  },
 );
 
 // Fetch all service bookings
@@ -100,10 +100,10 @@ export const fetchServiceBookings = createAsyncThunk<
       return rejectWithValue(
         error.response?.data?.message ||
           error.message ||
-          "Failed to fetch service bookings"
+          "Failed to fetch service bookings",
       );
     }
-  }
+  },
 );
 
 // Cancel service booking
@@ -128,10 +128,10 @@ export const cancelServiceBooking = createAsyncThunk<
       return bookingId;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to cancel service booking"
+        error.response?.data?.message || "Failed to cancel service booking",
       );
     }
-  }
+  },
 );
 
 //
@@ -166,7 +166,7 @@ const serviceBookingSlice = createSlice({
         (state, action: PayloadAction<ServiceBooking[]>) => {
           state.loading = false;
           state.List = action.payload;
-        }
+        },
       )
       .addCase(fetchServiceBookings.rejected, (state, action) => {
         state.loading = false;
@@ -183,7 +183,7 @@ const serviceBookingSlice = createSlice({
         (state, action: PayloadAction<ServiceBooking>) => {
           state.loading = false;
           state.List.push(action.payload);
-        }
+        },
       )
       .addCase(bookService.rejected, (state, action) => {
         state.loading = false;
@@ -200,9 +200,9 @@ const serviceBookingSlice = createSlice({
         (state, action: PayloadAction<string>) => {
           state.loading = false;
           state.List = state.List.filter(
-            (booking) => booking._id !== action.payload
+            (booking) => booking._id !== action.payload,
           );
-        }
+        },
       )
       .addCase(cancelServiceBooking.rejected, (state, action) => {
         state.loading = false;

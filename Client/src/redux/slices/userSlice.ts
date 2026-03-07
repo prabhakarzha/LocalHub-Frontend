@@ -5,8 +5,8 @@ import axios from "axios";
 const API_URL =
   (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(
     /\/$/,
-    ""
-  ) + "/api/users";
+    "",
+  ) + "/users";
 
 // Thunk: fetch total registered users
 export const fetchUserCount = createAsyncThunk<
@@ -20,7 +20,7 @@ export const fetchUserCount = createAsyncThunk<
     return res.data.totalUsers;
   } catch (error: any) {
     return rejectWithValue(
-      error.response?.data?.message || "Failed to fetch user count"
+      error.response?.data?.message || "Failed to fetch user count",
     );
   }
 });

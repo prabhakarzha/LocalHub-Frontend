@@ -3,8 +3,8 @@ import axios from "axios";
 import { RootState } from "../store";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL
-  ? `${process.env.NEXT_PUBLIC_API_URL}/api/bookings`
-  : "http://localhost:5000/api/bookings";
+  ? `${process.env.NEXT_PUBLIC_API_URL}/bookings`
+  : "http://localhost:5000/bookings";
 
 // Fetch all bookings (for regular users)
 export const getBookings = createAsyncThunk<

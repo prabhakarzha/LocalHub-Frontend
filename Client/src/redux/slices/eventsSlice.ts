@@ -103,7 +103,7 @@ export const updateEventStatus = createAsyncThunk(
     const token = state.auth.token;
 
     await axios.patch(
-      `${API_BASE_URL}/api/events/${id}/status`,
+      `${API_BASE_URL}/events/${id}/status`,
       { status },
       { headers: { Authorization: `Bearer ${token}` } },
     );
@@ -128,7 +128,7 @@ export const editEvent = createAsyncThunk<
       const state = getState() as any;
       const token = state.auth.token;
 
-      await axios.put(`${API_BASE_URL}/api/events/${id}`, eventData, {
+      await axios.put(`${API_BASE_URL}/events/${id}`, eventData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -153,7 +153,7 @@ export const removeEvent = createAsyncThunk<
     const state = getState() as any;
     const token = state.auth.token;
 
-    await axios.delete(`${API_BASE_URL}/api/events/${id}`, {
+    await axios.delete(`${API_BASE_URL}/events/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
