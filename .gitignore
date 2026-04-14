@@ -1,6 +1,5 @@
 # Ignore the Client folder
-Server/
-
+Client/
 # Ignore .env files# .gitignore
 # .env files
 .env
