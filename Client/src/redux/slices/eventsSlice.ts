@@ -2,8 +2,6 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { bookEvent } from "./bookingsSlice";
 
-// const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -185,7 +183,7 @@ const eventsSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // ✅ Get Events (paginated)
+      // ✅ Get Events (paginated) - FIXED: Now updates allEvents
       .addCase(getEvents.pending, (state) => {
         state.loading = true;
       })
@@ -194,10 +192,13 @@ const eventsSlice = createSlice({
 
         if (action.payload?.events && action.payload?.pagination) {
           state.events = action.payload.events;
+          state.allEvents = action.payload.events; // ✅ FIXED: Update allEvents
           state.pagination = action.payload.pagination;
           state.eventCount = action.payload.pagination.total || 0;
         } else {
-          state.events = normalizeEvents(action.payload);
+          const normalizedEvents = normalizeEvents(action.payload);
+          state.events = normalizedEvents;
+          state.allEvents = normalizedEvents; // ✅ FIXED: Update allEvents
           state.eventCount = state.events.length;
         }
       })
@@ -214,7 +215,6 @@ const eventsSlice = createSlice({
         state.loading = false;
         state.allEvents = normalizeEvents(action.payload);
         state.eventCount = state.allEvents.length;
-        // Also update regular events for backward compatibility
         state.events = state.allEvents;
       })
       .addCase(getAllEvents.rejected, (state, action) => {
@@ -228,7 +228,9 @@ const eventsSlice = createSlice({
       })
       .addCase(getUserEvents.fulfilled, (state, action) => {
         state.loading = false;
-        state.events = normalizeEvents(action.payload);
+        const normalizedEvents = normalizeEvents(action.payload);
+        state.events = normalizedEvents;
+        state.allEvents = normalizedEvents; // ✅ FIXED: Update allEvents
       })
       .addCase(getUserEvents.rejected, (state, action) => {
         state.loading = false;
@@ -246,23 +248,31 @@ const eventsSlice = createSlice({
 
       // ✅ Add Event
       .addCase(addEvent.fulfilled, (state, action) => {
-        state.events = normalizeEvents(action.payload);
+        const normalizedEvents = normalizeEvents(action.payload);
+        state.events = normalizedEvents;
+        state.allEvents = normalizedEvents; // ✅ FIXED: Update allEvents
         state.eventCount = state.events.length;
       })
 
       // ✅ Approve/Decline Event
       .addCase(updateEventStatus.fulfilled, (state, action) => {
-        state.events = normalizeEvents(action.payload);
+        const normalizedEvents = normalizeEvents(action.payload);
+        state.events = normalizedEvents;
+        state.allEvents = normalizedEvents; // ✅ FIXED: Update allEvents
       })
 
       // ✅ Edit Event
       .addCase(editEvent.fulfilled, (state, action) => {
-        state.events = normalizeEvents(action.payload);
+        const normalizedEvents = normalizeEvents(action.payload);
+        state.events = normalizedEvents;
+        state.allEvents = normalizedEvents; // ✅ FIXED: Update allEvents
       })
 
       // ✅ Remove Event
       .addCase(removeEvent.fulfilled, (state, action) => {
-        state.events = normalizeEvents(action.payload);
+        const normalizedEvents = normalizeEvents(action.payload);
+        state.events = normalizedEvents;
+        state.allEvents = normalizedEvents; // ✅ FIXED: Update allEvents
         state.eventCount = state.events.length;
       })
 

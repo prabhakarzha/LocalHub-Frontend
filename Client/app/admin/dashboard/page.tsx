@@ -37,6 +37,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
 import { useRouter } from "next/navigation";
 import withAdminAuth from "@/app/components/withAdminAuth";
+import { loadReducers } from "@/src/redux/store";
 
 // Import shared sidebar
 import Sidebar from "@/app/components/shared/Sidebar";
@@ -47,7 +48,7 @@ import { PageFallback } from "@/app/components/admin/PageFallback";
 import { ErrorDisplay } from "@/app/components/admin/ErrorDisplay";
 import { ConfirmModal } from "@/app/components/admin/ConfirmModal";
 import { DetailModal } from "@/app/components/admin/DetailModal";
-import { Header } from "@/app/components/admin/Header"; // This will be updated separately
+import { Header } from "@/app/components/admin/Header";
 import { Overview } from "@/app/components/admin/overview";
 import { BookingsView } from "@/app/components/admin/BookingsView";
 import { Placeholder } from "@/app/components/admin/Placeholder";
@@ -60,7 +61,7 @@ function AdminDashboardPage() {
   const dispatch = useAppDispatch();
   const reduxDispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  const dataFetchedRef = useRef(false); // Prevent double fetching
+  const dataFetchedRef = useRef(false);
 
   const [activeNav, setActiveNav] = useState<AdminNavKey>("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -91,11 +92,22 @@ function AdminDashboardPage() {
   const servicesState = useAppSelector((state: any) => state.services);
   const bookingsState = useAppSelector((state: any) => state.bookings);
   const authState = useAppSelector((state: any) => state.auth);
-  const pagination = servicesState?.pagination || { page: 1 };
 
-  // Access state directly from the regular fields
-  const events = eventsState?.events || [];
-  const services = servicesState?.services || [];
+  // Access state from the regular fields - Service ki tarah event ko bhi update kiya
+  const events =
+    eventsState?.allEvents?.length > 0
+      ? eventsState.allEvents
+      : eventsState?.events?.length > 0
+        ? eventsState.events
+        : [];
+
+  const services =
+    servicesState?.allServices?.length > 0
+      ? servicesState.allServices
+      : servicesState?.services?.length > 0
+        ? servicesState.services
+        : [];
+
   const bookings = bookingsState?.list || [];
 
   const { token, user } = authState || {};
@@ -106,7 +118,6 @@ function AdminDashboardPage() {
 
   // Load all data - but only once
   useEffect(() => {
-    // Prevent double fetching in development (React StrictMode)
     if (dataFetchedRef.current) return;
 
     const loadData = async () => {
@@ -115,7 +126,24 @@ function AdminDashboardPage() {
         setError(null);
         setDataLoaded(false);
 
-        // Load data in parallel
+        console.log(
+          "Loading data with token:",
+          token ? "Token exists" : "No token",
+        );
+
+        // Load the reducers first
+        console.log("Loading events and services reducers...");
+        await loadReducers(["events", "services", "bookings"]);
+        console.log("Reducers loaded successfully");
+
+        // Small delay to ensure reducers are registered
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        // Fetch ALL data using regular endpoints with large limit
+        console.log("Fetching ALL events (including pending)...");
+        console.log("Fetching ALL services (including pending)...");
+        console.log("Fetching bookings...");
+
         await Promise.all([
           dispatch(getEvents({ page: 1, limit: 1000 }) as any),
           dispatch(getServices({ page: 1, limit: 1000 }) as any),
@@ -128,11 +156,17 @@ function AdminDashboardPage() {
 
         setDataLoaded(true);
         dataFetchedRef.current = true;
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to load admin data:", error);
-        setError(
-          error instanceof Error ? error.message : "Failed to load data",
-        );
+
+        if (error?.response?.status === 401) {
+          console.log("401 error - authentication failed");
+          setError("Authentication failed. Please refresh and login again.");
+        } else {
+          setError(
+            error instanceof Error ? error.message : "Failed to load data",
+          );
+        }
       } finally {
         setIsLoading(false);
       }
@@ -141,7 +175,91 @@ function AdminDashboardPage() {
     if (mounted) {
       loadData();
     }
-  }, [dispatch, reduxDispatch, token, user, mounted]); // Remove dataFetchedRef from deps
+  }, [dispatch, reduxDispatch, token, mounted]);
+
+  // ========== DEBUGGING SECTION ==========
+  // This will help identify why pending items aren't showing
+
+  console.log("\n========== ADMIN DASHBOARD DEBUG ==========");
+  console.log("📊 Total Events Loaded:", events.length);
+  console.log("📊 Total Services Loaded:", services.length);
+
+  // Detailed event status check
+  if (events.length > 0) {
+    console.log("\n📅 EVENT STATUS BREAKDOWN:");
+    const eventStatuses: Record<string, number> = {};
+    events.forEach((event: any) => {
+      const status = event?.status || "NO_STATUS";
+      eventStatuses[status] = (eventStatuses[status] || 0) + 1;
+      console.log(`  - "${event.title}" : status = "${status}"`);
+    });
+    console.log("Event Status Summary:", eventStatuses);
+  } else {
+    console.log("⚠️ No events found in Redux state");
+  }
+
+  // Detailed service status check
+  if (services.length > 0) {
+    console.log("\n🔧 SERVICE STATUS BREAKDOWN:");
+    const serviceStatuses: Record<string, number> = {};
+    services.forEach((service: any) => {
+      const status = service?.status || "NO_STATUS";
+      serviceStatuses[status] = (serviceStatuses[status] || 0) + 1;
+      console.log(`  - "${service.title}" : status = "${status}"`);
+    });
+    console.log("Service Status Summary:", serviceStatuses);
+  } else {
+    console.log("⚠️ No services found in Redux state");
+  }
+
+  // Check for case sensitivity issues
+  const pendingEventsCaseInsensitive = events.filter((e: any) => {
+    const status = e?.status?.toLowerCase();
+    return status === "pending";
+  });
+  const pendingServicesCaseInsensitive = services.filter((s: any) => {
+    const status = s?.status?.toLowerCase();
+    return status === "pending";
+  });
+
+  console.log("\n🔍 CASE-INSENSITIVE CHECK:");
+  console.log(
+    "  Pending events (case-insensitive):",
+    pendingEventsCaseInsensitive.length,
+  );
+  console.log(
+    "  Pending services (case-insensitive):",
+    pendingServicesCaseInsensitive.length,
+  );
+
+  // Check for null/undefined status
+  const nullStatusEvents = events.filter((e: any) => !e?.status);
+  const nullStatusServices = services.filter((s: any) => !s?.status);
+  console.log("\n⚠️ NULL/UNDEFINED STATUS:");
+  console.log("  Events with no status:", nullStatusEvents.length);
+  console.log("  Services with no status:", nullStatusServices.length);
+
+  // Log first item sample
+  if (events.length > 0) {
+    console.log("\n📝 SAMPLE EVENT STRUCTURE:", {
+      id: events[0]._id,
+      title: events[0].title,
+      status: events[0].status,
+      allKeys: Object.keys(events[0]),
+    });
+  }
+
+  if (services.length > 0) {
+    console.log("\n📝 SAMPLE SERVICE STRUCTURE:", {
+      id: services[0]._id,
+      title: services[0].title,
+      status: services[0].status,
+      allKeys: Object.keys(services[0]),
+    });
+  }
+
+  console.log("==========================================\n");
+  // ========== END DEBUGGING SECTION ==========
 
   const castUser = user as any;
   const initials = castUser?.name
@@ -152,32 +270,34 @@ function AdminDashboardPage() {
         .toUpperCase()
     : "A";
 
-  // Memoize filtered arrays to prevent recalculation on every render
+  // Memoize filtered arrays
   const pendingEventsCount = useMemo(
-    () => events.filter((e: any) => e?.status === "pending").length,
+    () =>
+      events.filter((e: any) => e?.status?.toLowerCase() === "pending").length,
     [events],
   );
 
   const pendingServicesCount = useMemo(
-    () => services.filter((s: any) => s?.status === "pending").length,
+    () =>
+      services.filter((s: any) => s?.status?.toLowerCase() === "pending")
+        .length,
     [services],
   );
 
   // Get full pending items for header
   const pendingEvents = useMemo(
-    () => events.filter((e: any) => e?.status === "pending"),
+    () => events.filter((e: any) => e?.status?.toLowerCase() === "pending"),
     [events],
   );
 
   const pendingServices = useMemo(
-    () => services.filter((s: any) => s?.status === "pending"),
+    () => services.filter((s: any) => s?.status?.toLowerCase() === "pending"),
     [services],
   );
 
-  // Calculate stats only when data is loaded
+  // Calculate stats
   const stats = useMemo(() => {
     if (!dataLoaded) {
-      // Return placeholder values while loading
       return [
         {
           title: "Total Events",
@@ -296,7 +416,9 @@ function AdminDashboardPage() {
   const handleApproveService = useCallback(
     (id: string) => {
       triggerConfirm("Approve Service", "Approve this service?", () =>
-        dispatch(updateServiceStatus({ id, status: "approved" }) as any),
+        dispatch(
+          updateServiceStatus({ id, status: "approved", page: 1 }) as any,
+        ),
       );
     },
     [dispatch, triggerConfirm],
@@ -305,7 +427,9 @@ function AdminDashboardPage() {
   const handleRejectService = useCallback(
     (id: string) => {
       triggerConfirm("Reject Service", "Reject this service?", () =>
-        dispatch(updateServiceStatus({ id, status: "rejected" }) as any),
+        dispatch(
+          updateServiceStatus({ id, status: "rejected", page: 1 }) as any,
+        ),
       );
     },
     [dispatch, triggerConfirm],
@@ -316,34 +440,29 @@ function AdminDashboardPage() {
       triggerConfirm(
         "Delete Service",
         "This cannot be undone. Continue?",
-        () => dispatch(removeService({ id, page: pagination.page }) as any),
+        () => dispatch(removeService({ id, page: 1 }) as any),
         true,
       );
     },
-    [dispatch, triggerConfirm, pagination.page],
+    [dispatch, triggerConfirm],
   );
 
-  // Wrapper function for setActiveNav
-  const handleSetActiveNav = useCallback(
-    (key: any) => {
-      if (
-        [
-          "overview",
-          "events",
-          "services",
-          "bookings",
-          "users",
-          "settings",
-          "analytics",
-        ].includes(key)
-      ) {
-        setActiveNav(key as AdminNavKey);
-      }
-    },
-    [setActiveNav],
-  );
+  const handleSetActiveNav = useCallback((key: any) => {
+    if (
+      [
+        "overview",
+        "events",
+        "services",
+        "bookings",
+        "users",
+        "settings",
+        "analytics",
+      ].includes(key)
+    ) {
+      setActiveNav(key as AdminNavKey);
+    }
+  }, []);
 
-  // Show mounted loading state
   if (!mounted) {
     return (
       <div className="flex min-h-screen bg-[#0a0a0f] text-white">
@@ -354,7 +473,6 @@ function AdminDashboardPage() {
     );
   }
 
-  // Show loading state
   if (isLoading) {
     return (
       <div className="flex min-h-screen bg-[#0a0a0f] text-white">
@@ -401,9 +519,9 @@ function AdminDashboardPage() {
           onMenuClick={() => setSidebarOpen(true)}
           notificationCount={pendingEventsCount + pendingServicesCount}
           initials={initials}
-          token={token} // Pass token for pending buttons
-          pendingEvents={pendingEvents} // Pass pending events data
-          pendingServices={pendingServices} // Pass pending services data
+          token={token}
+          pendingEvents={pendingEvents}
+          pendingServices={pendingServices}
           onApproveEvent={handleApproveEvent}
           onRejectEvent={handleRejectEvent}
           onApproveService={handleApproveService}

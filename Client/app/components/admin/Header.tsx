@@ -1,7 +1,6 @@
 import { Bell, Menu } from "lucide-react";
 import { AdminNavKey } from "@/src/types/admin";
-import { useState, useEffect, lazy, Suspense } from "react";
-import axios from "axios";
+import { useState, lazy, Suspense } from "react";
 import { useAppDispatch } from "@/src/redux/hooks";
 import { getEvents } from "@/src/redux/slices/eventsSlice";
 import { getServices } from "@/src/redux/slices/servicesSlice";
@@ -30,128 +29,40 @@ export function Header({
   notificationCount,
   initials,
   token,
+  pendingEvents = [],
+  pendingServices = [],
+  onApproveEvent,
+  onRejectEvent,
+  onApproveService,
+  onRejectService,
 }: HeaderProps) {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  // const API_BASE_URL =
-  //   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-  const API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-
-  const [pendingEvents, setPendingEvents] = useState<any[]>([]);
-  const [pendingServices, setPendingServices] = useState<any[]>([]);
   const [openDropdown, setOpenDropdown] = useState<"event" | "service" | null>(
     null,
   );
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Fetch pending data for admin
-  useEffect(() => {
-    const fetchPendingData = async () => {
-      // Don't fetch if no token
-      if (!token) {
-        console.log("No token available for fetching pending data");
-        return;
-      }
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        // Validate token format
-        const cleanToken = token.startsWith("Bearer ") ? token.slice(7) : token;
-
-        const [eventsRes, servicesRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/events/pending`, {
-            headers: {
-              Authorization: `Bearer ${cleanToken}`,
-              "Content-Type": "application/json",
-            },
-          }),
-          axios.get(`${API_BASE_URL}/services/pending`, {
-            headers: {
-              Authorization: `Bearer ${cleanToken}`,
-              "Content-Type": "application/json",
-            },
-          }),
-        ]);
-
-        if (eventsRes.data?.success) {
-          setPendingEvents(eventsRes.data.events || []);
-        } else {
-          console.warn(
-            "Events pending response not successful:",
-            eventsRes.data,
-          );
-        }
-
-        if (servicesRes.data?.success) {
-          setPendingServices(servicesRes.data.services || []);
-        } else {
-          console.warn(
-            "Services pending response not successful:",
-            servicesRes.data,
-          );
-        }
-      } catch (err: any) {
-        console.error("Error fetching pending data:", err);
-
-        // Handle 401 specifically
-        if (err.response?.status === 401) {
-          setError("Session expired. Please login again.");
-          // Optional: Redirect to login after a delay
-          setTimeout(() => {
-            router.push("/login");
-          }, 2000);
-        } else {
-          setError(
-            err.response?.data?.message || "Failed to fetch pending data",
-          );
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPendingData();
-  }, [token, API_BASE_URL, router]);
 
   const handleApprove = async (id: string, type: "event" | "service") => {
     if (!token) {
       alert("You must be logged in to perform this action");
-      router.push("/login");
+      // ❌ REMOVE: router.push("/login");
       return;
     }
 
     try {
-      const cleanToken = token.startsWith("Bearer ") ? token.slice(7) : token;
-
-      await axios.patch(
-        `${API_BASE_URL}/${type}s/${id}/status`,
-        { status: "approved" },
-        {
-          headers: {
-            Authorization: `Bearer ${cleanToken}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
       if (type === "event") {
-        setPendingEvents((prev) => prev.filter((e) => e._id !== id));
+        await onApproveEvent?.(id);
         dispatch(getEvents({ page: 1, limit: 1000 }) as any);
       } else {
-        setPendingServices((prev) => prev.filter((s) => s._id !== id));
+        await onApproveService?.(id);
         dispatch(getServices({ page: 1, limit: 1000 }) as any);
       }
-
       alert(`✅ ${type.charAt(0).toUpperCase() + type.slice(1)} approved!`);
     } catch (err: any) {
       console.error(err);
       if (err.response?.status === 401) {
-        alert("Session expired. Please login again.");
-        router.push("/login");
+        alert("Session expired. Please refresh the page and login again.");
+        // ❌ REMOVE: router.push("/login");
       } else {
         alert(err.response?.data?.message || `Error approving ${type}!`);
       }
@@ -161,38 +72,24 @@ export function Header({
   const handleDecline = async (id: string, type: "event" | "service") => {
     if (!token) {
       alert("You must be logged in to perform this action");
-      router.push("/login");
+      // ❌ REMOVE: router.push("/login");
       return;
     }
 
     try {
-      const cleanToken = token.startsWith("Bearer ") ? token.slice(7) : token;
-
-      await axios.patch(
-        `${API_BASE_URL}/${type}s/${id}/status`,
-        { status: "declined" },
-        {
-          headers: {
-            Authorization: `Bearer ${cleanToken}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
       if (type === "event") {
-        setPendingEvents((prev) => prev.filter((e) => e._id !== id));
+        await onRejectEvent?.(id);
         dispatch(getEvents({ page: 1, limit: 1000 }) as any);
       } else {
-        setPendingServices((prev) => prev.filter((s) => s._id !== id));
+        await onRejectService?.(id);
         dispatch(getServices({ page: 1, limit: 1000 }) as any);
       }
-
       alert(`❌ ${type.charAt(0).toUpperCase() + type.slice(1)} declined!`);
     } catch (err: any) {
       console.error(err);
       if (err.response?.status === 401) {
-        alert("Session expired. Please login again.");
-        router.push("/login");
+        alert("Session expired. Please refresh the page and login again.");
+        // ❌ REMOVE: router.push("/login");
       } else {
         alert(err.response?.data?.message || `Error declining ${type}!`);
       }
@@ -202,34 +99,6 @@ export function Header({
   const toggleDropdown = (type: "event" | "service") => {
     setOpenDropdown((prev) => (prev === type ? null : type));
   };
-
-  // Show error message if any
-  if (error) {
-    return (
-      <header className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#0a0a0f]/80 backdrop-blur-xl">
-        <div className="flex items-center gap-4">
-          <button
-            className="md:hidden text-gray-400 hover:text-white"
-            onClick={onMenuClick}
-          >
-            <Menu className="w-6 h-6" />
-          </button>
-          <div>
-            <h1 className="text-base font-bold bg-gradient-to-r from-yellow-400 via-orange-400 to-pink-400 text-transparent bg-clip-text">
-              {activeNav === "overview" && "Admin Overview"}
-              {activeNav === "events" && "Manage Events"}
-              {activeNav === "services" && "Manage Services"}
-              {activeNav === "bookings" && "All Bookings"}
-              {activeNav === "users" && "User Management"}
-              {activeNav === "settings" && "Settings"}
-              {activeNav === "analytics" && "Analytics"}
-            </h1>
-          </div>
-        </div>
-        <div className="text-red-400 text-sm">{error}</div>
-      </header>
-    );
-  }
 
   return (
     <header className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#0a0a0f]/80 backdrop-blur-xl">
@@ -268,7 +137,6 @@ export function Header({
             <button
               onClick={() => toggleDropdown("event")}
               className="flex items-center gap-2 px-3 py-2 bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/30 rounded-lg transition-all"
-              disabled={loading}
             >
               <span className="text-yellow-400 font-semibold text-sm">
                 Pending Events
@@ -278,7 +146,6 @@ export function Header({
                   {pendingEvents.length}
                 </span>
               )}
-              {loading && <span className="text-xs text-gray-400">...</span>}
             </button>
 
             <Suspense fallback={null}>
@@ -300,7 +167,6 @@ export function Header({
             <button
               onClick={() => toggleDropdown("service")}
               className="flex items-center gap-2 px-3 py-2 bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 rounded-lg transition-all"
-              disabled={loading}
             >
               <span className="text-green-400 font-semibold text-sm">
                 Pending Services
@@ -310,7 +176,6 @@ export function Header({
                   {pendingServices.length}
                 </span>
               )}
-              {loading && <span className="text-xs text-gray-400">...</span>}
             </button>
 
             <Suspense fallback={null}>
@@ -347,7 +212,6 @@ export function Header({
             <button
               onClick={() => toggleDropdown("event")}
               className="flex items-center justify-between px-3 py-2 bg-yellow-500/20 border border-yellow-500/30 rounded-lg"
-              disabled={loading}
             >
               <span className="text-yellow-400 font-semibold">
                 Pending Events
@@ -361,7 +225,6 @@ export function Header({
             <button
               onClick={() => toggleDropdown("service")}
               className="flex items-center justify-between px-3 py-2 bg-green-500/20 border border-green-500/30 rounded-lg"
-              disabled={loading}
             >
               <span className="text-green-400 font-semibold">
                 Pending Services
